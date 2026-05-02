@@ -1,0 +1,16 @@
+{
+  "scene": "sphere",
+  "scene_description": "upper hemisphere of unit sphere",
+  "blob_budget": 32,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.010240321047604084,
+    "phoxoid": 0.006976359523832798
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.4678602805117578,
+  "image_psnr_gauss_vs_phoxoid_db": 24.809100771978617,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": 64,
+  "killer_ratio_normalized": 2.0,
+  "fit_seconds": 0.05103159999998752,
+  "render_seconds": 0.01734139999996387
+}

@@ -1,0 +1,253 @@
+{
+  "n_views": 8,
+  "v28_archive_vs_ply": {
+    "psnr_mean_db": 55.27532765186801,
+    "psnr_median_db": 55.3227778923398,
+    "psnr_worst_db": 54.43713448283965,
+    "ssim_mean": 0.9999260380864143,
+    "ssim_median": 0.9999288320541382,
+    "ssim_worst": 0.9999083876609802
+  },
+  "v28_render_vs_ply": {
+    "psnr_mean_db": 37.8337563455524,
+    "psnr_median_db": 38.00794034486,
+    "psnr_worst_db": 36.84563279634992,
+    "ssim_mean": 0.9964603185653687,
+    "ssim_median": 0.9965013563632965,
+    "ssim_worst": 0.9958117604255676
+  },
+  "rows": [
+    {
+      "cam_id": "az00_el+8",
+      "yaw_deg": 0.0,
+      "pitch_deg": 8.0,
+      "distance": 1.4,
+      "fov_deg": 45.0,
+      "archive": {
+        "full_psnr_db": 59.4684375788391,
+        "full_ssim": 0.9999625086784363,
+        "full_mae": 0.0001983243419090286,
+        "full_mse": 1.1302025768600288e-06,
+        "mask_pixel_count": 20275,
+        "mask_fraction": 0.3093719482421875,
+        "masked_psnr_db": 54.43713448283965,
+        "masked_ssim": 0.9999083876609802,
+        "masked_mae": 0.000627579924184829
+      },
+      "render": {
+        "full_psnr_db": 43.17939903149746,
+        "full_ssim": 0.9984353184700012,
+        "full_mae": 0.002058460609987378,
+        "full_mse": 4.8090591008076444e-05,
+        "mask_pixel_count": 20275,
+        "mask_fraction": 0.3093719482421875,
+        "masked_psnr_db": 38.12411137901458,
+        "masked_ssim": 0.9958117604255676,
+        "masked_mae": 0.006559350993484259
+      }
+    },
+    {
+      "cam_id": "az01_el+8",
+      "yaw_deg": 45.0,
+      "pitch_deg": 8.0,
+      "distance": 1.4,
+      "fov_deg": 45.0,
+      "archive": {
+        "full_psnr_db": 60.93970822165326,
+        "full_ssim": 0.9999684691429138,
+        "full_mae": 0.00019601064559537917,
+        "full_mse": 8.054325917328242e-07,
+        "mask_pixel_count": 19525,
+        "mask_fraction": 0.2979278564453125,
+        "masked_psnr_db": 55.777200615829855,
+        "masked_ssim": 0.9999291896820068,
+        "masked_mae": 0.0006427824264392257
+      },
+      "render": {
+        "full_psnr_db": 43.36443850472669,
+        "full_ssim": 0.9987725615501404,
+        "full_mae": 0.0021181993652135134,
+        "full_mse": 4.6084631321718916e-05,
+        "mask_pixel_count": 19525,
+        "mask_fraction": 0.2979278564453125,
+        "masked_psnr_db": 38.12336549347196,
+        "masked_ssim": 0.9965792894363403,
+        "masked_mae": 0.007011490408331156
+      }
+    },
+    {
+      "cam_id": "az02_el+8",
+      "yaw_deg": 90.0,
+      "pitch_deg": 8.0,
+      "distance": 1.4,
+      "fov_deg": 45.0,
+      "archive": {
+        "full_psnr_db": 61.20581923511209,
+        "full_ssim": 0.9999771118164062,
+        "full_mae": 0.00017367093823850155,
+        "full_mse": 7.57561792852357e-07,
+        "mask_pixel_count": 18040,
+        "mask_fraction": 0.2752685546875,
+        "masked_psnr_db": 55.65480890254051,
+        "masked_ssim": 0.9999344944953918,
+        "masked_mae": 0.0006226540426723659
+      },
+      "render": {
+        "full_psnr_db": 42.44490499345069,
+        "full_ssim": 0.9984774589538574,
+        "full_mae": 0.00218190741725266,
+        "full_mse": 5.695206709788181e-05,
+        "mask_pixel_count": 18040,
+        "mask_fraction": 0.2752685546875,
+        "masked_psnr_db": 36.8819156785603,
+        "masked_ssim": 0.9959802031517029,
+        "masked_mae": 0.007811472285538912
+      }
+    },
+    {
+      "cam_id": "az03_el+8",
+      "yaw_deg": 135.0,
+      "pitch_deg": 8.0,
+      "distance": 1.4,
+      "fov_deg": 45.0,
+      "archive": {
+        "full_psnr_db": 59.84138022762741,
+        "full_ssim": 0.9999668598175049,
+        "full_mae": 0.00022140202054288238,
+        "full_mse": 1.0371987855251064e-06,
+        "mask_pixel_count": 20946,
+        "mask_fraction": 0.319610595703125,
+        "masked_psnr_db": 54.957254894230836,
+        "masked_ssim": 0.9999200105667114,
+        "masked_mae": 0.000679556280374527
+      },
+      "render": {
+        "full_psnr_db": 43.03271538098172,
+        "full_ssim": 0.9988970160484314,
+        "full_mae": 0.002345884218811989,
+        "full_mse": 4.9742593546397984e-05,
+        "mask_pixel_count": 20946,
+        "mask_fraction": 0.319610595703125,
+        "masked_psnr_db": 38.089244605030316,
+        "masked_ssim": 0.9969368577003479,
+        "masked_mae": 0.0072613731026649475
+      }
+    },
+    {
+      "cam_id": "az04_el+8",
+      "yaw_deg": 180.0,
+      "pitch_deg": 8.0,
+      "distance": 1.4,
+      "fov_deg": 45.0,
+      "archive": {
+        "full_psnr_db": 60.97953644057826,
+        "full_ssim": 0.9999737739562988,
+        "full_mae": 0.00019517286273185164,
+        "full_mse": 7.980798386597598e-07,
+        "mask_pixel_count": 19736,
+        "mask_fraction": 0.3011474609375,
+        "masked_psnr_db": 55.858952387711284,
+        "masked_ssim": 0.9999387264251709,
+        "masked_mae": 0.0006339895771816373
+      },
+      "render": {
+        "full_psnr_db": 44.25685559649185,
+        "full_ssim": 0.9990834593772888,
+        "full_mae": 0.0019288106122985482,
+        "full_mse": 3.75244599126745e-05,
+        "mask_pixel_count": 19736,
+        "mask_fraction": 0.3011474609375,
+        "masked_psnr_db": 39.06200060987318,
+        "masked_ssim": 0.9973660111427307,
+        "masked_mae": 0.006318303756415844
+      }
+    },
+    {
+      "cam_id": "az05_el+8",
+      "yaw_deg": 225.0,
+      "pitch_deg": 8.0,
+      "distance": 1.4,
+      "fov_deg": 45.0,
+      "archive": {
+        "full_psnr_db": 59.99777056068594,
+        "full_ssim": 0.9999662041664124,
+        "full_mae": 0.00018715452461037785,
+        "full_mse": 1.000513634608069e-06,
+        "mask_pixel_count": 19515,
+        "mask_fraction": 0.2977752685546875,
+        "masked_psnr_db": 54.80371991391508,
+        "masked_ssim": 0.9999147057533264,
+        "masked_mae": 0.0006153805297799408
+      },
+      "render": {
+        "full_psnr_db": 42.862672453847736,
+        "full_ssim": 0.9987552762031555,
+        "full_mae": 0.0022399902809411287,
+        "full_mse": 5.172884266357869e-05,
+        "mask_pixel_count": 19515,
+        "mask_fraction": 0.2977752685546875,
+        "masked_psnr_db": 37.617144117429255,
+        "masked_ssim": 0.9964234232902527,
+        "masked_mae": 0.007410489022731781
+      }
+    },
+    {
+      "cam_id": "az06_el+8",
+      "yaw_deg": 270.0,
+      "pitch_deg": 8.0,
+      "distance": 1.4,
+      "fov_deg": 45.0,
+      "archive": {
+        "full_psnr_db": 60.55413227822068,
+        "full_ssim": 0.9999750256538391,
+        "full_mae": 0.00017474802734795958,
+        "full_mse": 8.802110187389189e-07,
+        "mask_pixel_count": 17970,
+        "mask_fraction": 0.274200439453125,
+        "masked_psnr_db": 54.990746882139085,
+        "masked_ssim": 0.9999284744262695,
+        "masked_mae": 0.0006268254364840686
+      },
+      "render": {
+        "full_psnr_db": 42.437372046233335,
+        "full_ssim": 0.9984140396118164,
+        "full_mae": 0.002201853320002556,
+        "full_mse": 5.705094008590095e-05,
+        "mask_pixel_count": 17970,
+        "mask_fraction": 0.274200439453125,
+        "masked_psnr_db": 36.84563279634992,
+        "masked_ssim": 0.9958634376525879,
+        "masked_mae": 0.007901840843260288
+      }
+    },
+    {
+      "cam_id": "az07_el+8",
+      "yaw_deg": 315.0,
+      "pitch_deg": 8.0,
+      "distance": 1.4,
+      "fov_deg": 45.0,
+      "archive": {
+        "full_psnr_db": 60.9333864591171,
+        "full_ssim": 0.9999723434448242,
+        "full_mae": 0.00019303862063679844,
+        "full_mse": 8.066058398981113e-07,
+        "mask_pixel_count": 19326,
+        "mask_fraction": 0.294891357421875,
+        "masked_psnr_db": 55.722803135737834,
+        "masked_ssim": 0.9999343156814575,
+        "masked_mae": 0.0006398640689440072
+      },
+      "render": {
+        "full_psnr_db": 43.198953370408184,
+        "full_ssim": 0.9987783432006836,
+        "full_mae": 0.002126237377524376,
+        "full_mse": 4.78745496366173e-05,
+        "mask_pixel_count": 19326,
+        "mask_fraction": 0.294891357421875,
+        "masked_psnr_db": 37.9266360846897,
+        "masked_ssim": 0.9967215657234192,
+        "masked_mae": 0.007084702607244253
+      }
+    }
+  ]
+}

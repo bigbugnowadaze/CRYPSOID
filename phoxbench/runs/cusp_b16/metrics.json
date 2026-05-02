@@ -1,0 +1,16 @@
+{
+  "scene": "cusp",
+  "scene_description": "Pearcey cusp surface z = 0.25 s (s^2 - 3 t^2)",
+  "blob_budget": 16,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.01904767006635666,
+    "phoxoid": 0.012679478153586388
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.502244006861515,
+  "image_psnr_gauss_vs_phoxoid_db": 25.101136809689287,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": -1,
+  "killer_ratio_normalized": null,
+  "fit_seconds": 0.05069279999997889,
+  "render_seconds": 0.024426500000004125
+}

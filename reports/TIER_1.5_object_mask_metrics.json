@@ -1,0 +1,48 @@
+{
+  "note": "Tier 1.5 item 4 \u2014 object-mask metrics, recomputed at camera-aligned 512x512 paired files.",
+  "reference": "renders/crypsorender_v01/ply_200k_side.png",
+  "mask_threshold_luma": 0.02,
+  "image_size": [
+    512,
+    512
+  ],
+  "object_mask_fraction": 0.38848876953125,
+  "comparisons": [
+    {
+      "pair": "PLY vs v28 EXACT archive",
+      "image_size": [
+        512,
+        512
+      ],
+      "object_mask_fraction": 0.38848876953125,
+      "full_frame": {
+        "psnr_db": 56.331,
+        "ssim": 0.99957
+      },
+      "object_only": {
+        "psnr_db": 52.232,
+        "ssim": 0.99936
+      },
+      "ssim_inflation_from_background": 0.00021,
+      "psnr_change_when_masked_db": -4.099
+    },
+    {
+      "pair": "PLY vs v28 VQ render",
+      "image_size": [
+        512,
+        512
+      ],
+      "object_mask_fraction": 0.38848876953125,
+      "full_frame": {
+        "psnr_db": 38.763,
+        "ssim": 0.99226
+      },
+      "object_only": {
+        "psnr_db": 34.67,
+        "ssim": 0.98862
+      },
+      "ssim_inflation_from_background": 0.00364,
+      "psnr_change_when_masked_db": -4.093
+    }
+  ]
+}

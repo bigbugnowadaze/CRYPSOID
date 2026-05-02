@@ -1,0 +1,16 @@
+{
+  "scene": "audi",
+  "scene_description": "PLY mesh (audi_scene.ply, 10000 pts after subsample)",
+  "blob_budget": 64,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.023083068430423737,
+    "phoxoid": 0.02189447730779648
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.0542872572803557,
+  "image_psnr_gauss_vs_phoxoid_db": 25.775647852261603,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": 128,
+  "killer_ratio_normalized": 2.0,
+  "fit_seconds": 0.09673300000031304,
+  "render_seconds": 0.01844619999974384
+}

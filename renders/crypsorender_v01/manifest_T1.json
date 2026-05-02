@@ -1,0 +1,63 @@
+{
+  "renderer": "crypsorender v0.2.1 (Tier 1)",
+  "doctrine": "CPU-only, no GPU/CUDA dependencies. numpy + scipy + Pillow + ffmpeg only.",
+  "tier_1_completion_date": "2026-04-30",
+  "novelty_summary": "Tier-aware splat dispatch (A/B/C) and per-splat phoxoidal density evaluation, plus q8-EXACT SH reconstruction from v28 archive — neither feature exists in vanilla 3DGS renderers.",
+
+  "tier_1_improvements_vs_v0_2": {
+    "1_1_halo_fix": "Per-pixel alpha threshold at 1/255 + radius cull at 1/16 of image side + reduced cov dilation (0.3 -> 0.1). Prevented ~167x per-pixel splat overlap from washing the image to white. Culled 7,000 oversized degenerate splats that touched 600+ tiles each.",
+    "1_2_q8_exact_sh": "Decoded SH from v28 archive (VQ codebook + per-tier-group residual chunks) instead of v28 render container (VQ-only). Result: PSNR vs PLY jumps from 38.76 dB (VQ-only) to 56.33 dB (EXACT) — 17 dB improvement, visually indistinguishable from PLY.",
+    "1_3_supersampling": "Render at 2x target resolution then Lanczos-downsample. Sharper edges, smoother anti-aliasing on splat boundaries."
+  },
+
+  "image_quality_metrics_at_side_view_200k": {
+    "PLY_vs_v28_archive": {"psnr_db": 56.33, "ssim": 0.9996},
+    "PLY_vs_v28_render":  {"psnr_db": 38.76, "ssim": 0.9923},
+    "v28_archive_vs_v28_render": {"psnr_db": 38.79, "ssim": 0.9923}
+  },
+
+  "file_size_summary": {
+    "original_PLY_bytes": 180258277,
+    "v25_attribute_group_bytes": 29998397,
+    "v27_sh_vq_render_bytes": 18796089,
+    "v28_sh_vq_render_bytes": 18795838,
+    "v28_q8_exact_archive_bytes": 32162548,
+    "v29_best_residual_archive_bytes": 31615009,
+    "compression_ratios_vs_PLY": {
+      "v25": "6.01x smaller (16.6%)",
+      "v27": "9.59x smaller (10.4%)",
+      "v28_render": "9.59x smaller (10.4%)",
+      "v28_archive": "5.60x smaller (17.8%)",
+      "v29_best": "5.70x smaller (17.5%)"
+    }
+  },
+
+  "deliverables": {
+    "headline": "SHOWCASE_T1_final.png — hero supersampled image + 3-way comparison + file size chart",
+    "hero_image": "v28_archive_200k_side_512_SS.png — supersampled Audi A5 from v28 EXACT archive",
+    "raw_native_1024": "v28_archive_200k_side_1024_native.png — pre-downsample 1024x1024",
+    "comparison_strip": "SHOWCASE_T12_archive_vs_render.png — PLY | v28 archive | v28 render side-by-side",
+    "tier_overlay": "v28_tier_overlay_200k.png — A=red B=green C=blue surface vs halo decomposition",
+    "file_sizes": "file_sizes.png + file_sizes.json + file_sizes.svg"
+  },
+
+  "honest_caveats": {
+    "subsample": "200,000 splats subsampled from 763,800 total (the full-density render at this camera angle exceeded the bash sandbox's per-call time limit; subsample shows the model recognizably).",
+    "y_flip_correction": "Renders saved by chunked driver are upside-down (Y convention mismatch); flipped at presentation time.",
+    "phoxoidal_path": "Tier 1 used the gaussian-mode dispatch (every tier -> Gaussian path) for the comparison metrics. Tier 2 will exercise the phoxoidal Tier A/B paths and produce qualitatively different visuals.",
+    "supersampling_only_at_subsample": "The 1024 -> 512 supersample was only run at the 200k subsample because the full 763k at 1024 exceeded sandbox time."
+  },
+
+  "tier_2_plan": [
+    "Replace screen-space phoxoidal density approximation with faithful per-pixel closest-point Newton solve on the germ surface.",
+    "Add cubic Pearcey-class germ basis terms (cusps, twists, folds — the real catastrophe-optics math from the thesis).",
+    "Refit germs with the richer basis.",
+    "PhoxBench Tier 0 stress scenes: plane, sphere, saddle, fold, cusp, thin sheet, crossing sheets, occlusion edge.",
+    "A/B vs Gaussian baseline on each scene; report primitives-needed-to-equal-quality."
+  ],
+
+  "tier_3_plan": [
+    "Either heavy numpy optimization (tile-batched rasterization, ~10x speedup target) for ~30 fps at 512^2 in pure Python.",
+    "Or a separate WebGL viewer that loads .3dphox client-side. Viewer uses GPU shaders client-side; CRYPSOID codebase stays GPU-free."
+  ]
+}

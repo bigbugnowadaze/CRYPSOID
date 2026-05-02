@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="310"><rect width="100%" height="100%" fill="white"/><style>text{font-family:monospace;font-size:14px}</style>
+<text x="20" y="42">v11 VQ256 baseline</text><rect x="300" y="27" width="356.7" height="20" fill="#222"/><text x="666.7" y="42">18.24 MiB</text>
+<text x="20" y="90">v25 q8 full attributes</text><rect x="300" y="75" width="559.6" height="20" fill="#222"/><text x="869.6" y="90">28.61 MiB</text>
+<text x="20" y="138">v27 SH-VQ render</text><rect x="300" y="123" width="350.6" height="20" fill="#222"/><text x="660.6" y="138">17.93 MiB</text>
+<text x="20" y="186">v28 SH-VQ render</text><rect x="300" y="171" width="350.6" height="20" fill="#222"/><text x="660.6" y="186">17.93 MiB</text>
+<text x="20" y="234">v28 q8-exact archive</text><rect x="300" y="219" width="600.0" height="20" fill="#222"/><text x="910.0" y="234">30.67 MiB</text>
+</svg>

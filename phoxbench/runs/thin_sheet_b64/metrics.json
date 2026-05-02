@@ -1,0 +1,16 @@
+{
+  "scene": "thin_sheet",
+  "scene_description": "two parallel planes z = +/- 0.02",
+  "blob_budget": 64,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.019801948219537735,
+    "phoxoid": 0.019578907638788223
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.0113918807353501,
+  "image_psnr_gauss_vs_phoxoid_db": 24.672723237036344,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": -1,
+  "killer_ratio_normalized": null,
+  "fit_seconds": 0.09192580000001271,
+  "render_seconds": 0.021390699999983553
+}

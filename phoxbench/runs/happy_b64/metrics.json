@@ -1,0 +1,16 @@
+{
+  "scene": "happy",
+  "scene_description": "PLY mesh (happyStandRight_0.ply, 10000 pts after subsample)",
+  "blob_budget": 64,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.011478845961391926,
+    "phoxoid": 0.010131592862308025
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.1329754479274436,
+  "image_psnr_gauss_vs_phoxoid_db": 24.994375584347356,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": 128,
+  "killer_ratio_normalized": 2.0,
+  "fit_seconds": 0.10737349999999424,
+  "render_seconds": 0.021593599999505386
+}

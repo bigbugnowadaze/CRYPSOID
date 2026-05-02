@@ -1,0 +1,40 @@
+{
+  "renderer": "Fast CPU DC/opacity preview renderer; not a full anisotropic SH splat renderer",
+  "original": "/mnt/data/Audi A5 Sportback(1).zip",
+  "current": "/mnt/data/v27_attribute_group_sh_vq_render_container (1).3dphox",
+  "current_format": "CRYPSOID_3DPHOX_ATTRIBUTE_GROUP_V27_SH_VQ_RENDER",
+  "camera": {
+    "yaw": 35,
+    "pitch": 18,
+    "distance": 2.4,
+    "fov": 42
+  },
+  "size": 1024,
+  "max_points": 120000,
+  "counts": {
+    "original": 763800,
+    "current": 763800
+  },
+  "metrics": {
+    "mse": 0.2238209992647171,
+    "mae": 0.03333346173167229,
+    "psnr_db": 54.6317953052117,
+    "ssim": 0.9999774297357209
+  },
+  "outputs": {
+    "original_png": "/mnt/data/crypsoid_v27_render_outputs/original_preview.png",
+    "current_png": "/mnt/data/crypsoid_v27_render_outputs/crypsoid_current_preview.png",
+    "side_by_side_png": "/mnt/data/crypsoid_v27_render_outputs/current_vs_original_side_by_side.png",
+    "absdiff_png": "/mnt/data/crypsoid_v27_render_outputs/current_vs_original_absdiff.png",
+    "v27_named_original_png": "/mnt/data/crypsoid_v27_render_outputs/original_preview_v27_camera.png",
+    "v27_named_current_png": "/mnt/data/crypsoid_v27_render_outputs/crypsoid_v27_preview.png",
+    "v27_named_side_by_side_png": "/mnt/data/crypsoid_v27_render_outputs/v27_vs_original_side_by_side.png",
+    "v27_named_absdiff_png": "/mnt/data/crypsoid_v27_render_outputs/v27_vs_original_absdiff.png",
+    "tier_png": "/mnt/data/crypsoid_v27_render_outputs/crypsoid_v27_tier_view.png"
+  },
+  "tier_counts": {
+    "0": 94006,
+    "1": 144271,
+    "2": 525523
+  }
+}

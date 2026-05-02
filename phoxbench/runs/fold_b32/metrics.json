@@ -1,0 +1,16 @@
+{
+  "scene": "fold",
+  "scene_description": "fold-like surface z = 0.2 s (s^2 - 3 t^2)",
+  "blob_budget": 32,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.005673931445926428,
+    "phoxoid": 0.003429313423112035
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.6545386046334156,
+  "image_psnr_gauss_vs_phoxoid_db": 26.90173010165895,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": 64,
+  "killer_ratio_normalized": 2.0,
+  "fit_seconds": 0.046940100000028906,
+  "render_seconds": 0.014684099999954014
+}

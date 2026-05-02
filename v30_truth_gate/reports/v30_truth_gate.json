@@ -1,0 +1,72 @@
+{
+  "image_metrics": {
+    "mse": 3.49021047441056e-06,
+    "mae": 0.0001378701563226059,
+    "psnr_db": 54.571483824623414,
+    "ssim": 0.9999114871025085
+  },
+  "decode_times_seconds": {
+    "read_container_s": 0.09647679999943648,
+    "decompress_chunks_s": 0.06665170000087528,
+    "decode_xyz_u24_s": 0.043356199999834644,
+    "decode_dc_rgb_opacity_u8_s": 0.009874400000626338,
+    "decode_tier_labels_u8_s": 1.300000076298602e-05
+  },
+  "render_times_seconds": {
+    "render_original_s": 0.2604795000006561,
+    "render_v28_s": 0.2505236999986664,
+    "render_tier_view_s": 0.6127655000000232
+  },
+  "attribute_parity": {
+    "tier_labels_u8": {
+      "equal": true,
+      "differing_bytes": 0
+    },
+    "xyz_u24_fixed": {
+      "equal": true,
+      "differing_bytes": 0
+    },
+    "dc_rgb_opacity_u8": {
+      "equal": true,
+      "differing_bytes": 0
+    },
+    "scale_f16": {
+      "equal": true,
+      "differing_bytes": 0
+    },
+    "quat_i16_norm4": {
+      "equal": true,
+      "differing_bytes": 0
+    }
+  },
+  "tier_counts": {
+    "0": 94006,
+    "1": 144271,
+    "2": 525523
+  },
+  "tier_color_legend": {
+    "0_tier_a_native_render": "#FF4040",
+    "1_tier_b_native_render": "#40FF40",
+    "2_tier_c_native_render": "#4040FF"
+  },
+  "truth_note": "This is a CPU DC/opacity point preview renderer. It uses only the diffuse (DC) color and opacity channels; SH bands 1-3 are not exercised. It draws screen-space dots, not anisotropic Gaussians. It is meant to catch gross geometry/color errors before the full viewer path. It is NOT final visual truth. SSIM computed with skimage's structural_similarity (window size 11 by default) on 0-1 normalized RGB.",
+  "camera": {
+    "yaw": 35,
+    "pitch": 18,
+    "distance": 2.4,
+    "fov": 42
+  },
+  "render_settings": {
+    "size": 1024,
+    "max_points": 200000
+  },
+  "counts": {
+    "original": 763800,
+    "v28": 763800
+  },
+  "outputs": {
+    "contact_sheet": "v30_truth_gate/renders/v30_contact_sheet.png",
+    "error_heatmap": "v30_truth_gate/renders/v30_error_heatmap.png",
+    "tier_view": "v30_truth_gate/renders/v30_tier_view.png"
+  }
+}

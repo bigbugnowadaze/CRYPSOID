@@ -1,0 +1,31 @@
+version,role,status,notes
+v0.1,alpha scaffold / dependency-reduction build,historic,"Image-to-phoxel CPU kernel, .3dphox alpha save/load, preview renderer, CLI encode/preview/info, smoke tests."
+v0.2,real Gaussian-splat PLY ingestion,historic,"Read Audi A5 binary PLY; 763,800 splats consumed; fields x/y/z, scale, f_dc, opacity, rotation, f_rest; output ~99,962 phoxels at grid96."
+v0.3,richer phoxel preservation + benchmark,historic,"Per-phoxel count, weighted center, xyz_var, SH DC, opacity, scale, quaternion; grid96 16.62 MB / 10.849x vs source PLY."
+v0.4,camera-space preview from .3dphox,historic,Perspective camera preview; still not full 3DGS renderer.
+v0.5,compact typed-array phoxel container,non-parity,"grid96 2.59 MiB / 66.31x / 98.49%; very small but aggregated, not splat parity."
+v0.6,splat-usecase parity branch,important,Introduced CRYPSOID_3DPHOX_SPLATPACK_V1; one source Gaussian per record. DC 16.76 MiB; u16+SH16 44.90 MiB.
+v0.7,anisotropic CPU correctness renderer + SH evaluation,important,Projected 2D covariance from scale/quaternion; degree-3 SH color eval; u16_sh16 PSNR 78.15 dB vs f32+SH16 preview.
+v0.8,q8 SH + Morton ordering,important,u16_sh_q8_morton 31.76 MiB / 5.41x / 81.52%; preserves 45 SH residual channels as int8.
+v0.9,explicit chunked binary splatbin container,important,CRYPSOID_3DPHOX_SPLATBIN_V1; magic+manifest+zlib chunks+CRC32; q8 delta-XYZ 31.69 MiB.
+v0.10,SH product vector quantization,important,VQ256 18.26 MiB / 9.41x / 89.38%; 3 codebook indices per splat + 3x256x15 f16 codebooks.
+v0.11,VQ/RVQ quality sweep,safe baseline,v11_vq256 18.24 MiB / 9.43x / 89.39%; RVQ64 not enough to replace default.
+v0.12,SARC-lite chartability audit,rejected as active render,"Aggressive chartability 52.22%, prototype 4.66 MiB, but visual parity bad; kept as advisor/LOD only."
+v0.13,SARC guard / accuracy-first integration,guardrail,SARC demoted to sidecar/advisor; safe base + SARC sidecar 22.89 MiB; v12 active render rejected.
+v0.14,thesis absorption + phoxoidal math rebase,math pivot,Phoxoidal blob kernel added: P(x)=alpha*exp(-A(x)); Gaussian path becomes teacher/fallback/residual path.
+v0.15,controlled PhoxBench synthetic proof,math sanity,"Phoxoidal improvement: bowl/saddle 99.99%, cusp/fold 72.73%, creased sheet 74.00%, ripple 6.17%, plane none."
+v0.16,Audi phoxoid replacement benchmark,partial win,"214 accepted candidates; 68,228 splats (8.93%); replacement ratio 318.82; estimated 16.64 MiB hybrid."
+v0.17,nearest-neighbor phoxoid predictive residual audit,proxy audit,"85 accepted predictive phoxoids; 23,203 splats (3.04%); estimated 17.91 MiB hybrid."
+v0.18,actual phoxoid residual payload sidecar,written chunks,"85 actual residual chunks; residual payload 285,666 bytes; estimated 17.96 MiB hybrid."
+v0.19,adaptive residual precision + context histogram audit,audit,int8/int12/int16 per attribute; coverage improved to 4.82%.
+v0.20,hash-grid/Morton-neighborhood context prediction audit,predictive audit,"247 accepted chunks; 94,006 splats (12.31%); estimated 16.85 MiB entropy hybrid."
+v0.21,actual hash-context residual sidecar containers,written sidecar,Wrote HASH_CONTEXT_RESIDUAL_V21 and ARCHIVE_EXACT_V21; 16.89 MiB actual-accounted hybrid.
+v0.22,fallback burn-down/native exact tier audit,audit/prototype,Native coverage 31.20%; estimated hybrid 15.06 MiB; Tier B exact payload not yet written.
+v0.23,self-contained native container scaffold,structural milestone,"Actual v0.23 container 15,698,036 bytes / 14.97 MiB; external fallback dependency 0%; CRC 6/6."
+v0.24,hybrid decoder checkpoint from real PLY extraction,decoder bootstrap,"763,800 decoded splats; preview container 11.05 MiB; omitted full SH residuals and exact rotations."
+v0.25,honest real attribute-group native container,truth substrate,"29,998,695 bytes / 28.61 MiB; carries tier labels, XYZ u24, DC/opacity u8, scale f16, quaternion i16, SH q8."
+v0.26,attribute-debt diagnosis/checkpoint,diagnostic,"v25 debt shares: SH 41.89%, XYZ 20.81%, quaternion 19.19%, scale 9.61%, DC/opacity 8.49%."
+v0.27,SH attribute-debt breaker,LATEST USABLE ANCHOR,"18,796,089 bytes / 17.93 MiB; 9.59x / 89.57%; preserves non-SH groups, replaces SH q8 global with VQ128 idx/codebook. Not exact SH."
+v0.28,context-aware SH correction / render harness,plan/harness,"Current workspace has render harness and v29 plan, not full v28 binary recovered from pasted chat."
+v0.29,residual transform sweep harness,synthetic only here,Harness ran synthetic smoke because real v25/v27 inputs were missing; do not treat as Audi compression result.
+v0.30,render truth gate,next phase,"Render original, v27 render core, v29 exact/archive if present, same camera, metrics/contact sheet before primitive work."

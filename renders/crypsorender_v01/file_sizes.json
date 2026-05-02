@@ -1,0 +1,61 @@
+{
+  "reference_ply_bytes": 180258277,
+  "files": [
+    {
+      "name": "Audi A5 Sportback.zip (full PLY)",
+      "bytes": 180258809,
+      "mib": 171.90819644927979,
+      "ratio_smaller_than_ply": 0.9999970486879229,
+      "pct_of_ply": 100.00029513207873,
+      "kind": "source"
+    },
+    {
+      "name": "scene.ply (extracted, raw 3DGS PLY)",
+      "bytes": 78438400,
+      "mib": 74.8046875,
+      "ratio_smaller_than_ply": 2.2980871231437665,
+      "pct_of_ply": 43.51445121158015,
+      "kind": "source"
+    },
+    {
+      "name": "v25 attribute group .3dphox",
+      "bytes": 29998397,
+      "mib": 28.6087007522583,
+      "ratio_smaller_than_ply": 6.008930310509592,
+      "pct_of_ply": 16.641897115215407,
+      "kind": "crypsoid"
+    },
+    {
+      "name": "v27 SH-VQ render .3dphox",
+      "bytes": 18796089,
+      "mib": 17.925347328186035,
+      "ratio_smaller_than_ply": 9.590201291343108,
+      "pct_of_ply": 10.427309809468555,
+      "kind": "crypsoid"
+    },
+    {
+      "name": "v28 SH-VQ render .3dphox",
+      "bytes": 18795838,
+      "mib": 17.925107955932617,
+      "ratio_smaller_than_ply": 9.590329359084707,
+      "pct_of_ply": 10.427170564822385,
+      "kind": "crypsoid"
+    },
+    {
+      "name": "v28 q8-exact archive .3dphox",
+      "bytes": 32162548,
+      "mib": 30.672595977783203,
+      "ratio_smaller_than_ply": 5.604601880423155,
+      "pct_of_ply": 17.842480542516224,
+      "kind": "crypsoid"
+    },
+    {
+      "name": "v29 best residual transform archive",
+      "bytes": 31615009,
+      "mib": 30.15042209625244,
+      "ratio_smaller_than_ply": 5.701667742685128,
+      "pct_of_ply": 17.538728055189388,
+      "kind": "crypsoid"
+    }
+  ]
+}

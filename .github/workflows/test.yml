@@ -1,0 +1,111 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies (CPU-only — no torch, no cuda)
+        run: |
+          python -m pip install --upgrade pip
+          # Pin to ensure no GPU dependencies sneak in
+          python -m pip install \
+            "numpy>=1.26" \
+            "scipy>=1.11" \
+            "scikit-learn>=1.4" \
+            "scikit-image>=0.22" \
+            "Pillow>=10" \
+            "imageio>=2.34"
+
+      - name: Verify no banned packages in dep tree
+        run: |
+          python - <<'PY'
+          import importlib, sys
+          banned = ["torch", "tensorflow", "jax", "gsplat", "diff_gaussian_rasterization",
+                    "nerfstudio", "tinygrad", "taichi"]
+          installed = []
+          for pkg in banned:
+              try:
+                  importlib.import_module(pkg)
+                  installed.append(pkg)
+              except ImportError:
+                  pass
+          if installed:
+              print(f"BANNED PACKAGES INSTALLED: {installed}")
+              sys.exit(1)
+          print("No banned GPU packages detected.")
+          PY
+
+      - name: Tier 2 numerical-correctness anchors
+        run: |
+          cd tools && python3 -m phoxbench.tests
+
+      - name: PhoxBench smoke (one scene, smallest budget, no killer-ratio)
+        run: |
+          cd tools && python3 -m phoxbench.run_scene \
+            --scene cusp --budget 64 --no-killer \
+            --out /tmp/phoxbench_smoke
+
+      - name: Verify smoke outputs
+        run: |
+          test -f /tmp/phoxbench_smoke/cusp_b64/metrics.json
+          test -f /tmp/phoxbench_smoke/cusp_b64/side_by_side.png
+          python3 - <<'PY'
+          import json
+          m = json.load(open("/tmp/phoxbench_smoke/cusp_b64/metrics.json"))
+          assert m["scene"] == "cusp"
+          assert m["fit_rmse"]["gaussian"] > 0
+          assert m["fit_rmse"]["phoxoid"] > 0
+          print(f"smoke metrics: gauss_rmse={m['fit_rmse']['gaussian']:.5f} "
+                f"phox_rmse={m['fit_rmse']['phoxoid']:.5f}")
+          PY
+
+      - name: v28-archive bit-exactness check (if container present in repo)
+        run: |
+          if [ -f outputs/v25_attribute_group_render_container.3dphox ] && \
+             [ -f outputs/v28_sh_vq_exact_archive_container.3dphox ]; then
+            python3 - <<'PY'
+          import struct, json, zlib
+          from pathlib import Path
+          def read(p):
+              with p.open("rb") as f:
+                  f.read(11); ml = struct.unpack("<Q", f.read(8))[0]
+                  man = json.loads(f.read(ml)); blob = f.read()
+              c = {x["name"]: x for x in man["chunks"]}
+              return man, blob, c
+          m25, b25, c25 = read(Path("outputs/v25_attribute_group_render_container.3dphox"))
+          mAR, bAR, cAR = read(Path("outputs/v28_sh_vq_exact_archive_container.3dphox"))
+          shared = ['tier_labels_u8','xyz_u24_fixed','dc_rgb_opacity_u8','scale_f16','quat_i16_norm4']
+          for name in shared:
+              a = zlib.decompress(b25[c25[name]["offset"]:c25[name]["offset"]+c25[name]["compressed_bytes"]])
+              b = zlib.decompress(bAR[cAR[name]["offset"]:cAR[name]["offset"]+cAR[name]["compressed_bytes"]])
+              assert a == b, f"{name}: NOT byte-identical"
+              print(f"  {name}: byte-identical ({len(a):,} bytes)")
+          print("v25/v28-archive passthrough chunks: ALL byte-identical.")
+          PY
+          else
+            echo "Containers not present in repo (excluded for size?). Skipping bit-exactness check."
+          fi
+
+      - name: Upload smoke render as CI artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phoxbench-smoke
+          path: /tmp/phoxbench_smoke/
+          retention-days: 14

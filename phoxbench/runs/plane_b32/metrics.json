@@ -1,0 +1,16 @@
+{
+  "scene": "plane",
+  "scene_description": "z = 0 plane over [-1,1]^2",
+  "blob_budget": 32,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.0,
+    "phoxoid": 0.0
+  },
+  "fit_advantage_phoxoid_over_gaussian": null,
+  "image_psnr_gauss_vs_phoxoid_db": 29.37621060994967,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": -1,
+  "killer_ratio_normalized": null,
+  "fit_seconds": 0.05180319999999483,
+  "render_seconds": 0.014686299999993935
+}

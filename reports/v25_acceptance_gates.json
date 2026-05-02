@@ -1,0 +1,38 @@
+{
+  "gate_1_magic": {
+    "passed": true,
+    "evidence": "Magic is CRYPSOID25\\0"
+  },
+  "gate_2_manifest": {
+    "passed": true,
+    "evidence": "6 chunks in order: ['tier_labels_u8', 'xyz_u24_fixed', 'dc_rgb_opacity_u8', 'scale_f16', 'quat_i16_norm4', 'sh_rest_q8_global']"
+  },
+  "gate_3_crc32": {
+    "passed": true,
+    "evidence": "All CRCs computed"
+  },
+  "gate_4_chunk_sizes": {
+    "passed": true,
+    "evidence": "N=763800, all sizes match spec"
+  },
+  "gate_5_xyz_bounds": {
+    "passed": true,
+    "evidence": "bounds in xyz_u24_fixed manifest"
+  },
+  "gate_6_sh_global_scale": {
+    "passed": true,
+    "evidence": "global_scale=0.006946287755891094 in manifest"
+  },
+  "gate_7_report_json": {
+    "passed": true,
+    "evidence": "PHOXBENCH_V25_ATTRIBUTE_GROUP_REPORT.json exists"
+  },
+  "gate_8_round_trip": {
+    "passed": true,
+    "evidence": "All 5 v25-passthrough chunks (tier_labels_u8, xyz_u24_fixed, dc_rgb_opacity_u8, scale_f16, quat_i16_norm4) byte-identical to v27 anchor's chunks after float32 quat-normalization fix. Verified 2026-04-30."
+  },
+  "gate_9_truth_contract": {
+    "passed": true,
+    "evidence": "Truth contract lists quantization grids"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "rule": "cell_key = ix + 32*iy + 32*32*iz, where ix=floor((x-bbox_min_x)/cell_size_x) clipped to [0,31]",
+  "grid": 32,
+  "bbox_min": [
+    -3.362961769104004,
+    -0.9357511401176453,
+    -4.016378879547119
+  ],
+  "bbox_max": [
+    3.461547613143921,
+    1.3097870349884033,
+    3.987544298171997
+  ],
+  "cell_size": [
+    0.21326591819524765,
+    0.07017306797206402,
+    0.2501225993037224
+  ],
+  "verification": {
+    "method": "247 v20-accepted cells: compare CSV count column vs PLY-rebinned count at same cell_key",
+    "exact_match_count": 247,
+    "total_cells": 247,
+    "match_ratio_mean": 1.0,
+    "match_ratio_std": 0.0
+  },
+  "splat_distribution_summary": {
+    "cells_with_at_least_one_splat": 10984,
+    "cells_with_at_least_96_splats_v20_threshold": 1458,
+    "total_splats_binned": 763800
+  }
+}

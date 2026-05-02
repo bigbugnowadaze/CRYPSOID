@@ -1,0 +1,23 @@
+{
+  "renderer": "CPU DC/opacity point preview; not full anisotropic SH rasterizer",
+  "original": "inputs/audi/Audi A5 Sportback.zip",
+  "v28": "outputs/v28_sh_vq_render_container.3dphox",
+  "size": 1024,
+  "max_points": 200000,
+  "camera": {
+    "yaw": 35,
+    "pitch": 18,
+    "distance": 2.4,
+    "fov": 42
+  },
+  "counts": {
+    "original": 763800,
+    "v28": 763800
+  },
+  "render_psnr_db_same_preview": 51.19085067103146,
+  "outputs": {
+    "original": "renders/original_ply_dc_opacity_preview.png",
+    "v28": "renders/crypsoid_v28_dc_opacity_preview.png",
+    "side_by_side": "renders/v28_vs_original_side_by_side.png"
+  }
+}

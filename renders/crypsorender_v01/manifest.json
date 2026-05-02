@@ -1,0 +1,63 @@
+{
+  "renderer": "crypsorender v0.2",
+  "doctrine": "CPU-only, no GPU/CUDA dependencies. numpy + scipy + Pillow + ffmpeg only.",
+  "novelty_summary": "Tier-aware splat dispatch (A/B/C) and per-splat phoxoidal density evaluation - neither feature exists in vanilla 3DGS renderers.",
+  "code_paths_exercised": [
+    "anisotropic 2D-Gaussian rasterization",
+    "EWA 3D->2D covariance projection",
+    "16x16 tile binning",
+    "front-to-back alpha compositing with early termination",
+    "per-splat SH evaluation (degrees 0..3, real basis) when sh_rest available",
+    "synthetic-germ fitter (per-splat curvature kappa_1, kappa_2 from k-NN local fit)",
+    "phoxoidal density evaluation (screen-space curvature-modulated falloff)",
+    "tier-aware dispatch (Tier A/B -> phoxoidal path, Tier C -> Gaussian fallback)"
+  ],
+  "tier_dispatch_counts_subsample_200k": {
+    "A_phoxoidal_full": 24693,
+    "B_phoxoidal_corrected": 37960,
+    "C_native_gaussian": 137347,
+    "_per_pixel_rasterizations_phoxoidal_run": {"A": 30850, "B": 45924, "C": 274686},
+    "_per_pixel_rasterizations_gaussian_run":  {"A": 41167, "B": 65649, "C": 273862}
+  },
+  "panels": [
+    {
+      "name": "ply_200k_512.png",
+      "scene": "inputs/audi/Audi A5 Sportback.zip (PLY, 763800 splats)",
+      "subsample": "200000",
+      "use_sh": true,
+      "render_path": "vanilla Gaussian (PLY has no tier labels; defaults to Tier C everywhere)",
+      "honesty_caveat": "Reference: standard 3DGS render with no tier dispatch."
+    },
+    {
+      "name": "v28_phox_200k_gaussian.png",
+      "scene": "outputs/v28_sh_vq_render_container.3dphox",
+      "subsample": "200000",
+      "use_sh": false,
+      "render_path": "all tiers -> Gaussian (the v0.1 baseline)",
+      "honesty_caveat": "Tier dispatch wired in but every tier dispatched to the Gaussian rasterizer for a clean baseline."
+    },
+    {
+      "name": "v28_phox_200k_phoxoidal_strong.png",
+      "scene": "outputs/v28_sh_vq_render_container.3dphox",
+      "subsample": "200000",
+      "use_sh": false,
+      "render_path": "Tier A/B -> phoxoidal density (LAMBDA=0.5 modulation), Tier C -> Gaussian",
+      "honesty_caveat": "Synthetic curvature germs auto-fitted from each splat's 8-NN local neighborhood (real germ data not yet in .3dphox format). Phoxoidal density uses a screen-space approximation; faithful per-pixel Newton solve is v0.3 work."
+    },
+    {
+      "name": "v28_tier_overlay_200k.png",
+      "scene": "outputs/v28_sh_vq_render_container.3dphox",
+      "subsample": "200000",
+      "render_path": "tier-color override (Tier A=red, B=green, C=blue) instead of SH RGB",
+      "honesty_caveat": "Diagnostic overlay showing which spatial regions belong to which tier. The red/green concentrations land on the actual car body surface; blue is the ambient halo. Visualizes the project's spatial doctrine in one image."
+    }
+  ],
+  "open_followups": [
+    "Decode v28's VQ-encoded SH so the v28 renders carry proper view-dependent color (only DC was used here).",
+    "Replace the screen-space phoxoidal approximation with a faithful per-pixel closest-point Newton solve for higher-fidelity germs.",
+    "Add cusp/twist germ basis terms (Pearcey-class) and re-fit; will reveal genuinely non-bell-shape phoxoid blobs.",
+    "Tier B exact-residual correction lookup from v28's archive container.",
+    "Turntable MP4 (deferred from v0.1).",
+    "Try side/three-quarter camera angles where the halo doesn't fully cover the car body at full splat density."
+  ]
+}

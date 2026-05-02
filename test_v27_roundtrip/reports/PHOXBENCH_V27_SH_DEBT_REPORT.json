@@ -1,0 +1,96 @@
+{
+  "cycle": "v0.27",
+  "title": "SH debt breaker using product VQ render core",
+  "status": "Built actual .3dphox render container preserving v25 non-SH attribute groups and replacing the huge global q8 SH stream with VQ labels/codebooks. This fixes the v25 loop by attacking the largest honest chunk first.",
+  "source": {
+    "splats": 763800,
+    "source_ply_bytes": 180258809,
+    "v11_vq256_bytes": 19123179,
+    "v25_full_attribute_bytes": 29996722
+  },
+  "v25_debt": {
+    "sh_q8_global_compressed_bytes": 12563450,
+    "share_of_v25_percent": 41.88274305439108
+  },
+  "v27": {
+    "render_container_bytes": 18794386,
+    "render_container_mib": 17.923723220825195,
+    "ratio_vs_source_ply": 9.591098586567286,
+    "reduction_vs_source_ply_percent": 89.57366571749623,
+    "delta_vs_v25_percent": -37.34520058558398,
+    "delta_vs_v11_percent": -1.7193427933713368
+  },
+  "sh_vq": {
+    "groups": "3x15",
+    "k": 128,
+    "sample_train_rows": 5000,
+    "rmse_q8_by_group": [
+      5.938798363437766,
+      5.883498455149498,
+      5.730437789194307
+    ],
+    "rmse_float_estimate_by_group": [
+      0.041252602356653824,
+      0.04086847328080913,
+      0.039805269850976044
+    ],
+    "max_abs_q8_error_by_group": [
+      104,
+      86,
+      96
+    ],
+    "note": "This render container is not q8-exact. It is a size repair replacing the v25 global q8 SH stream with a palette/codebook render core. Exact q8 correction is deferred to v0.28."
+  },
+  "readback": {
+    "all_crc_ok": true,
+    "verified_chunks": [
+      {
+        "name": "tier_labels_u8",
+        "ok": true,
+        "compressed_bytes": 3754,
+        "raw_bytes": 763800
+      },
+      {
+        "name": "xyz_u24_fixed",
+        "ok": true,
+        "compressed_bytes": 6242122,
+        "raw_bytes": 6874200
+      },
+      {
+        "name": "dc_rgb_opacity_u8",
+        "ok": true,
+        "compressed_bytes": 2547608,
+        "raw_bytes": 3055200
+      },
+      {
+        "name": "scale_f16",
+        "ok": true,
+        "compressed_bytes": 2882949,
+        "raw_bytes": 4582800
+      },
+      {
+        "name": "quat_i16_norm4",
+        "ok": true,
+        "compressed_bytes": 5754288,
+        "raw_bytes": 6110400
+      },
+      {
+        "name": "sh_vq128_idx_u8",
+        "ok": true,
+        "compressed_bytes": 1356120,
+        "raw_bytes": 2291400
+      },
+      {
+        "name": "sh_vq128_codebook_i8",
+        "ok": true,
+        "compressed_bytes": 3920,
+        "raw_bytes": 5760
+      }
+    ]
+  },
+  "outputs": {
+    "container": "test_v27_roundtrip/outputs/v27_attribute_group_sh_vq_render_container.3dphox",
+    "bars": "test_v27_roundtrip/outputs/v27_sh_vq_size_bars.svg"
+  },
+  "next": "v0.28 should add q8-exact correction chunks and make VQ context-aware by tier/phoxoid family; v0.27 is a render-size repair, not a lossless archive win."
+}

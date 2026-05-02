@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CRYPSOID .3dphox WebGL viewer</title>
+<style>
+  :root { --fg: #eee; --bg: #181820; --panel: #2a2a36; --accent: #5b9; --warn: #c75; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--fg);
+               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+  #canvas { display: block; width: 100vw; height: 100vh; }
+  #ui { position: fixed; top: 12px; left: 12px; background: rgba(40,40,50,0.92); padding: 14px 16px;
+        border-radius: 8px; max-width: 360px; font-size: 13px; line-height: 1.5;
+        backdrop-filter: blur(6px); border: 1px solid #444; }
+  #ui h1 { font-size: 15px; margin: 0 0 8px 0; color: var(--accent); }
+  #ui .row { margin: 6px 0; }
+  #ui label { display: block; font-size: 11px; opacity: 0.7; }
+  #ui select, #ui input[type=range] { width: 100%; padding: 4px; background: #333; color: var(--fg);
+                                       border: 1px solid #555; border-radius: 4px; }
+  #ui button { padding: 4px 10px; background: var(--accent); color: #111; border: none;
+                border-radius: 4px; font-weight: bold; cursor: pointer; margin-right: 4px; }
+  #ui button:hover { background: #6db; }
+  #drop { position: fixed; inset: 0; background: rgba(20,20,30,0.86); display: flex;
+          align-items: center; justify-content: center; font-size: 28px; color: var(--accent); z-index: 10;
+          border: 4px dashed var(--accent); pointer-events: none; opacity: 0; transition: opacity 0.1s; }
+  #drop.show { opacity: 1; }
+  #status { font-size: 11px; opacity: 0.75; min-height: 32px; }
+  #stats { font-size: 11px; opacity: 0.7; margin-top: 8px; padding-top: 8px; border-top: 1px solid #444; }
+  .pill { display: inline-block; padding: 2px 7px; border-radius: 10px; background: #444; margin-right: 4px; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<div id="drop">drop a .3dphox file</div>
+
+<div id="ui">
+  <h1>CRYPSOID viewer</h1>
+  <div class="row">
+    <button id="loadBtn">Load .3dphox</button>
+    <input id="fileInput" type="file" accept=".3dphox" style="display:none">
+  </div>
+  <div class="row">
+    <label>Render mode</label>
+    <select id="modeSelect">
+      <option value="full">Full color (DC + SH)</option>
+      <option value="dc">DC only</option>
+      <option value="tier">Tier overlay (A=red B=green C=blue)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Splat scale (×<span id="scaleVal">1.00</span>)</label>
+    <input id="scaleSlider" type="range" min="0.3" max="2.0" step="0.05" value="1.0">
+  </div>
+  <div class="row">
+    <label>Splat alpha cap (×<span id="alphaVal">1.00</span>)</label>
+    <input id="alphaSlider" type="range" min="0.1" max="1.0" step="0.05" value="1.0">
+  </div>
+  <div id="status">no scene loaded</div>
+  <div id="stats"></div>
+</div>
+
+<script type="module">
+import { loadPhoxAll } from "./phox_decoder.js";
+
+const canvas = document.getElementById("canvas");
+const status = document.getElementById("status");
+const stats = document.getElementById("stats");
+const drop = document.getElementById("drop");
+const fileInput = document.getElementById("fileInput");
+const loadBtn = document.getElementById("loadBtn");
+const modeSelect = document.getElementById("modeSelect");
+const scaleSlider = document.getElementById("scaleSlider");
+const alphaSlider = document.getElementById("alphaSlider");
+const scaleVal = document.getElementById("scaleVal");
+const alphaVal = document.getElementById("alphaVal");
+
+const gl = canvas.getContext("webgl2", { antialias: false, alpha: false, premultipliedAlpha: false });
+if (!gl) { document.body.innerHTML = "<h1 style='color:white;padding:40px;'>WebGL2 required.</h1>"; throw new Error("no webgl2"); }
+
+// ---------- shaders ----------
+const VS = `#version 300 es
+in vec2 corner;       // (-1,-1) (1,-1) (-1,1) (1,1) — quad corner
+in vec3 splatPos;
+in vec4 splatRot;     // wxyz quaternion
+in vec3 splatScale;   // log scales (3DGS convention)
+in vec4 splatColor;   // pre-evaluated RGB + opacity
+uniform mat4 uView;
+uniform mat4 uProj;
+uniform vec2 uViewport;
+uniform float uFocal;
+uniform float uScaleMul;
+uniform float uAlphaMul;
+out vec4 vColor;
+out vec2 vPos;
+
+mat3 quatToRot(vec4 q) {
+    float w = q.x, x = q.y, y = q.z, z = q.w;
+    return mat3(
+        1.0 - 2.0*(y*y+z*z),  2.0*(x*y-w*z),       2.0*(x*z+w*y),
+        2.0*(x*y+w*z),        1.0 - 2.0*(x*x+z*z), 2.0*(y*z-w*x),
+        2.0*(x*z-w*y),        2.0*(y*z+w*x),       1.0 - 2.0*(x*x+y*y)
+    );
+}
+
+void main() {
+    vec4 cam = uView * vec4(splatPos, 1.0);
+    if (cam.z >= -0.01) { gl_Position = vec4(0,0,2,1); return; }
+    vec4 ndc = uProj * cam;
+    vec3 sigma = exp(splatScale) * uScaleMul;
+    mat3 R = quatToRot(splatRot);
+    mat3 S = mat3(sigma.x,0,0, 0,sigma.y,0, 0,0,sigma.z);
+    mat3 M = R * S;
+    mat3 cov3 = M * transpose(M);
+
+    // EWA projection Jacobian
+    float fx = uFocal, fy = uFocal;
+    float z = -cam.z;
+    mat3 J = mat3(
+        fx/z, 0,   -fx*cam.x/(z*z),
+        0,    fy/z,-fy*cam.y/(z*z),
+        0,    0,    0
+    );
+    mat3 W = mat3(uView);
+    mat3 T = J * W;
+    mat3 cov2 = T * cov3 * transpose(T);
+    cov2[0][0] += 0.3; cov2[1][1] += 0.3;
+    float a = cov2[0][0], b = cov2[0][1], d = cov2[1][1];
+    float det = a*d - b*b;
+    if (det <= 0.0) { gl_Position = vec4(0,0,2,1); return; }
+    float trace = a + d;
+    float disc = sqrt(max(trace*trace - 4.0*det, 0.0));
+    float lam1 = 0.5*(trace + disc);
+    float lam2 = 0.5*(trace - disc);
+    if (lam1 < 0.5) { gl_Position = vec4(0,0,2,1); return; }
+    vec2 v1 = abs(b) > 1e-9 ? normalize(vec2(lam1 - d, b)) : vec2(1,0);
+    vec2 v2 = vec2(-v1.y, v1.x);
+    float r1 = sqrt(lam1) * 3.0;
+    float r2 = sqrt(lam2) * 3.0;
+
+    vec2 center = (ndc.xy / ndc.w) * 0.5 + 0.5;
+    center *= uViewport;
+    vec2 quadOffset = corner.x * v1 * r1 + corner.y * v2 * r2;
+    vec2 pos = center + quadOffset;
+    vec2 clip = (pos / uViewport) * 2.0 - 1.0;
+    gl_Position = vec4(clip, ndc.z/ndc.w, 1.0);
+
+    vColor = vec4(splatColor.rgb, splatColor.a * uAlphaMul);
+    vPos = corner;
+}`;
+
+const FS = `#version 300 es
+precision highp float;
+in vec4 vColor;
+in vec2 vPos;
+out vec4 outColor;
+void main() {
+    float r2 = dot(vPos, vPos);
+    if (r2 > 1.0) discard;
+    float falloff = exp(-2.0 * r2);
+    float a = vColor.a * falloff;
+    if (a < 0.004) discard;
+    outColor = vec4(vColor.rgb * a, a);
+}`;
+
+function compileShader(type, src) {
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(sh)); throw new Error("shader compile");
+    }
+    return sh;
+}
+function linkProgram(vs, fs) {
+    const p = gl.createProgram();
+    gl.attachShader(p, vs); gl.attachShader(p, fs);
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+        console.error(gl.getProgramInfoLog(p)); throw new Error("program link");
+    }
+    return p;
+}
+const program = linkProgram(compileShader(gl.VERTEX_SHADER, VS), compileShader(gl.FRAGMENT_SHADER, FS));
+gl.useProgram(program);
+
+// Quad corners (instanced)
+const cornerBuf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, cornerBuf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+const ATTRS = ["corner", "splatPos", "splatRot", "splatScale", "splatColor"];
+const locs = {};
+for (const a of ATTRS) locs[a] = gl.getAttribLocation(program, a);
+const uView = gl.getUniformLocation(program, "uView");
+const uProj = gl.getUniformLocation(program, "uProj");
+const uVP = gl.getUniformLocation(program, "uViewport");
+const uFocal = gl.getUniformLocation(program, "uFocal");
+const uScaleMul = gl.getUniformLocation(program, "uScaleMul");
+const uAlphaMul = gl.getUniformLocation(program, "uAlphaMul");
+
+let scene = null;
+let buffers = null;
+let camera = { yawDeg: 90, pitchDeg: 2, distance: 1.0, fov: 50, target: [0, 0, 0] };
+let renderMode = "full";
+let scaleMul = 1.0;
+let alphaMul = 1.0;
+
+// ---------- camera math ----------
+function degToRad(d) { return d * Math.PI / 180; }
+function lookAt(eye, target, up) {
+    const f = normalize(sub(target, eye));
+    const r = normalize(cross(f, up));
+    const u = cross(r, f);
+    return new Float32Array([
+        r[0], u[0], -f[0], 0,
+        r[1], u[1], -f[1], 0,
+        r[2], u[2], -f[2], 0,
+        -dot(r, eye), -dot(u, eye), dot(f, eye), 1
+    ]);
+}
+function perspective(fovDeg, aspect, near, far) {
+    const f = 1.0 / Math.tan(degToRad(fovDeg) / 2);
+    const nf = 1.0 / (near - far);
+    return new Float32Array([
+        f / aspect, 0, 0, 0,
+        0, f, 0, 0,
+        0, 0, (far + near) * nf, -1,
+        0, 0, 2 * far * near * nf, 0
+    ]);
+}
+function sub(a, b) { return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]; }
+function dot(a, b) { return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; }
+function cross(a, b) { return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+function normalize(a) { const m = Math.sqrt(dot(a, a)) || 1; return [a[0]/m, a[1]/m, a[2]/m]; }
+
+// ---------- SH evaluation (degree 0-3, real basis, matches sh.py) ----------
+function evalShColor(shDc, shRest, viewDir, n) {
+    // shDc: (n, 3) treated as base color in [0,1] (already SH_C0 * f_dc + 0.5 if from PLY)
+    // shRest: (n, 45) raw f_rest values, channel-major (15 per channel)
+    // viewDir: (n, 3) unit world-space view direction
+    const out = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) {
+        const x = viewDir[i*3], y = viewDir[i*3+1], z = viewDir[i*3+2];
+        // basis values for degrees 1-3 (15 of them)
+        const basis = new Float32Array(15);
+        basis[0]  = -0.4886025119029199 * y;
+        basis[1]  =  0.4886025119029199 * z;
+        basis[2]  = -0.4886025119029199 * x;
+        const xy = x*y, yz = y*z, xz = x*z;
+        basis[3]  =  1.0925484305920792 * xy;
+        basis[4]  = -1.0925484305920792 * yz;
+        basis[5]  =  0.31539156525251999 * (3*z*z - 1);
+        basis[6]  = -1.0925484305920792 * xz;
+        basis[7]  =  0.5462742152960395 * (x*x - y*y);
+        basis[8]  = -0.5900435899266435 * y * (3*x*x - y*y);
+        basis[9]  =  2.890611442640554 * xy * z;
+        basis[10] = -0.4570457994644658 * y * (5*z*z - 1);
+        basis[11] =  0.3731763325901154 * z * (5*z*z - 3);
+        basis[12] = -0.4570457994644658 * x * (5*z*z - 1);
+        basis[13] =  1.445305721320277  * z * (x*x - y*y);
+        basis[14] = -0.5900435899266435 * x * (x*x - 3*y*y);
+        for (let c = 0; c < 3; c++) {
+            let v = shDc[i*3 + c];
+            if (shRest) {
+                for (let k = 0; k < 15; k++) v += shRest[i*45 + c*15 + k] * basis[k];
+            }
+            out[i*3 + c] = Math.max(0, Math.min(1, v));
+        }
+    }
+    return out;
+}
+
+// ---------- buffer setup once a scene is loaded ----------
+function rebuildColors() {
+    if (!scene) return;
+    const eye = computeEye();
+    const view = new Float32Array(scene.n * 3);
+    for (let i = 0; i < scene.n; i++) {
+        const dx = scene.xyz[i*3]   - eye[0];
+        const dy = scene.xyz[i*3+1] - eye[1];
+        const dz = scene.xyz[i*3+2] - eye[2];
+        const m = Math.sqrt(dx*dx+dy*dy+dz*dz) || 1;
+        view[i*3]   = dx/m; view[i*3+1] = dy/m; view[i*3+2] = dz/m;
+    }
+    let rgb;
+    if (renderMode === "tier") {
+        rgb = new Float32Array(scene.n * 3);
+        for (let i = 0; i < scene.n; i++) {
+            const t = scene.tier[i];
+            if (t === 0) { rgb[i*3]=1.0; rgb[i*3+1]=0.25; rgb[i*3+2]=0.25; }
+            else if (t === 1) { rgb[i*3]=0.25; rgb[i*3+1]=1.0; rgb[i*3+2]=0.25; }
+            else { rgb[i*3]=0.25; rgb[i*3+1]=0.45; rgb[i*3+2]=1.0; }
+        }
+    } else if (renderMode === "dc" || !scene.sh_rest) {
+        rgb = new Float32Array(scene.n * 3);
+        for (let i = 0; i < scene.n; i++) {
+            rgb[i*3]=scene.dc[i*3]; rgb[i*3+1]=scene.dc[i*3+1]; rgb[i*3+2]=scene.dc[i*3+2];
+        }
+    } else {
+        rgb = evalShColor(scene.dc, scene.sh_rest, view, scene.n);
+    }
+    const colorAlpha = new Float32Array(scene.n * 4);
+    for (let i = 0; i < scene.n; i++) {
+        colorAlpha[i*4]   = rgb[i*3];
+        colorAlpha[i*4+1] = rgb[i*3+1];
+        colorAlpha[i*4+2] = rgb[i*3+2];
+        colorAlpha[i*4+3] = scene.opacity[i];
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+    gl.bufferData(gl.ARRAY_BUFFER, colorAlpha, gl.DYNAMIC_DRAW);
+}
+
+function setupBuffers() {
+    if (buffers) for (const k in buffers) gl.deleteBuffer(buffers[k]);
+    buffers = {
+        pos: gl.createBuffer(),
+        rot: gl.createBuffer(),
+        scale: gl.createBuffer(),
+        color: gl.createBuffer(),
+    };
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.pos);
+    gl.bufferData(gl.ARRAY_BUFFER, scene.xyz, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.rot);
+    gl.bufferData(gl.ARRAY_BUFFER, scene.quats, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.scale);
+    gl.bufferData(gl.ARRAY_BUFFER, scene.scales, gl.STATIC_DRAW);
+    rebuildColors();
+}
+
+function computeEye() {
+    let cx = 0, cy = 0, cz = 0;
+    for (let i = 0; i < scene.n; i++) {
+        cx += scene.xyz[i*3]; cy += scene.xyz[i*3+1]; cz += scene.xyz[i*3+2];
+    }
+    cx /= scene.n; cy /= scene.n; cz /= scene.n;
+    let radius = 0;
+    for (let i = 0; i < scene.n; i++) {
+        const dx = scene.xyz[i*3]-cx, dy = scene.xyz[i*3+1]-cy, dz = scene.xyz[i*3+2]-cz;
+        radius = Math.max(radius, Math.sqrt(dx*dx+dy*dy+dz*dz));
+    }
+    camera.target = [cx, cy, cz];
+    camera.sceneRadius = radius;
+    const yaw = degToRad(camera.yawDeg), pitch = degToRad(camera.pitchDeg);
+    const dist = camera.distance * radius;
+    return [
+        cx + dist * Math.cos(pitch) * Math.sin(yaw),
+        cy + dist * Math.sin(pitch),
+        cz + dist * Math.cos(pitch) * Math.cos(yaw)
+    ];
+}
+
+function render() {
+    if (!scene) { gl.clearColor(0.07, 0.07, 0.09, 1); gl.clear(gl.COLOR_BUFFER_BIT); return; }
+    canvas.width = canvas.clientWidth * (window.devicePixelRatio || 1);
+    canvas.height = canvas.clientHeight * (window.devicePixelRatio || 1);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.clearColor(0.05, 0.05, 0.07, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE_MINUS_DST_ALPHA, gl.ONE);  // pre-multiplied additive
+    gl.disable(gl.DEPTH_TEST);
+
+    const eye = computeEye();
+    const view = lookAt(eye, camera.target, [0, 1, 0]);
+    const aspect = canvas.width / canvas.height;
+    const proj = perspective(camera.fov, aspect, 0.01, 1000);
+
+    gl.uniformMatrix4fv(uView, false, view);
+    gl.uniformMatrix4fv(uProj, false, proj);
+    gl.uniform2f(uVP, canvas.width, canvas.height);
+    const focal = 0.5 * canvas.height / Math.tan(degToRad(camera.fov)/2);
+    gl.uniform1f(uFocal, focal);
+    gl.uniform1f(uScaleMul, scaleMul);
+    gl.uniform1f(uAlphaMul, alphaMul);
+
+    // Bind quad corners (per-vertex)
+    gl.bindBuffer(gl.ARRAY_BUFFER, cornerBuf);
+    gl.enableVertexAttribArray(locs.corner);
+    gl.vertexAttribPointer(locs.corner, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribDivisor(locs.corner, 0);
+
+    // Per-instance attributes
+    function bindInstanced(name, buf, sizeFloats) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.enableVertexAttribArray(locs[name]);
+        gl.vertexAttribPointer(locs[name], sizeFloats, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribDivisor(locs[name], 1);
+    }
+    bindInstanced("splatPos", buffers.pos, 3);
+    bindInstanced("splatRot", buffers.rot, 4);
+    bindInstanced("splatScale", buffers.scale, 3);
+    bindInstanced("splatColor", buffers.color, 4);
+
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, scene.n);
+}
+
+function loop() { render(); requestAnimationFrame(loop); }
+
+// ---------- file load ----------
+async function loadFile(file) {
+    status.textContent = `loading ${file.name} (${(file.size/1024/1024).toFixed(2)} MiB) ...`;
+    const t0 = performance.now();
+    try {
+        const buf = await file.arrayBuffer();
+        scene = await loadPhoxAll(buf);
+    } catch (e) { status.textContent = "ERROR: " + e.message; console.error(e); return; }
+    const dt = performance.now() - t0;
+    setupBuffers();
+    const tierCounts = [0, 0, 0];
+    for (let i = 0; i < scene.n; i++) tierCounts[scene.tier[i]]++;
+    status.innerHTML = `<b>${file.name}</b> <span class="pill">${scene.format || scene.magic.trim()}</span><br>${scene.n.toLocaleString()} splats decoded in ${dt.toFixed(0)} ms`;
+    stats.innerHTML = `Tier A=${tierCounts[0].toLocaleString()} (${(100*tierCounts[0]/scene.n).toFixed(1)}%)<br>` +
+                      `Tier B=${tierCounts[1].toLocaleString()} (${(100*tierCounts[1]/scene.n).toFixed(1)}%)<br>` +
+                      `Tier C=${tierCounts[2].toLocaleString()} (${(100*tierCounts[2]/scene.n).toFixed(1)}%)<br>` +
+                      `Has SH residuals: ${scene.sh_rest ? "yes" : "no (DC only)"}<br>` +
+                      `Format: ${scene.is_exact ? "EXACT archive" : "render container"}`;
+}
+
+loadBtn.onclick = () => fileInput.click();
+fileInput.onchange = (e) => { if (e.target.files[0]) loadFile(e.target.files[0]); };
+modeSelect.onchange = () => { renderMode = modeSelect.value; rebuildColors(); };
+scaleSlider.oninput = () => { scaleMul = parseFloat(scaleSlider.value); scaleVal.textContent = scaleMul.toFixed(2); };
+alphaSlider.oninput = () => { alphaMul = parseFloat(alphaSlider.value); alphaVal.textContent = alphaMul.toFixed(2); };
+
+// drag and drop
+window.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("show"); });
+window.addEventListener("dragleave", (e) => { drop.classList.remove("show"); });
+window.addEventListener("drop", (e) => {
+    e.preventDefault(); drop.classList.remove("show");
+    if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+
+// camera mouse controls
+let dragging = false, lastX = 0, lastY = 0;
+canvas.addEventListener("mousedown", (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+window.addEventListener("mouseup", () => dragging = false);
+window.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    camera.yawDeg = (camera.yawDeg + dx * 0.4) % 360;
+    camera.pitchDeg = Math.max(-85, Math.min(85, camera.pitchDeg + dy * 0.4));
+    if (scene && scene.sh_rest) rebuildColors();
+});
+canvas.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    camera.distance *= e.deltaY > 0 ? 1.08 : 1/1.08;
+    camera.distance = Math.max(0.1, Math.min(20, camera.distance));
+}, { passive: false });
+
+loop();
+status.textContent = "drop a .3dphox file or click 'Load .3dphox'";
+</script>
+</body>
+</html>

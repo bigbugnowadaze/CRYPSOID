@@ -1,0 +1,182 @@
+[
+  {
+    "version": "v0.1",
+    "role": "alpha scaffold / dependency-reduction build",
+    "status": "historic",
+    "notes": "Image-to-phoxel CPU kernel, .3dphox alpha save/load, preview renderer, CLI encode/preview/info, smoke tests."
+  },
+  {
+    "version": "v0.2",
+    "role": "real Gaussian-splat PLY ingestion",
+    "status": "historic",
+    "notes": "Read Audi A5 binary PLY; 763,800 splats consumed; fields x/y/z, scale, f_dc, opacity, rotation, f_rest; output ~99,962 phoxels at grid96."
+  },
+  {
+    "version": "v0.3",
+    "role": "richer phoxel preservation + benchmark",
+    "status": "historic",
+    "notes": "Per-phoxel count, weighted center, xyz_var, SH DC, opacity, scale, quaternion; grid96 16.62 MB / 10.849x vs source PLY."
+  },
+  {
+    "version": "v0.4",
+    "role": "camera-space preview from .3dphox",
+    "status": "historic",
+    "notes": "Perspective camera preview; still not full 3DGS renderer."
+  },
+  {
+    "version": "v0.5",
+    "role": "compact typed-array phoxel container",
+    "status": "non-parity",
+    "notes": "grid96 2.59 MiB / 66.31x / 98.49%; very small but aggregated, not splat parity."
+  },
+  {
+    "version": "v0.6",
+    "role": "splat-usecase parity branch",
+    "status": "important",
+    "notes": "Introduced CRYPSOID_3DPHOX_SPLATPACK_V1; one source Gaussian per record. DC 16.76 MiB; u16+SH16 44.90 MiB."
+  },
+  {
+    "version": "v0.7",
+    "role": "anisotropic CPU correctness renderer + SH evaluation",
+    "status": "important",
+    "notes": "Projected 2D covariance from scale/quaternion; degree-3 SH color eval; u16_sh16 PSNR 78.15 dB vs f32+SH16 preview."
+  },
+  {
+    "version": "v0.8",
+    "role": "q8 SH + Morton ordering",
+    "status": "important",
+    "notes": "u16_sh_q8_morton 31.76 MiB / 5.41x / 81.52%; preserves 45 SH residual channels as int8."
+  },
+  {
+    "version": "v0.9",
+    "role": "explicit chunked binary splatbin container",
+    "status": "important",
+    "notes": "CRYPSOID_3DPHOX_SPLATBIN_V1; magic+manifest+zlib chunks+CRC32; q8 delta-XYZ 31.69 MiB."
+  },
+  {
+    "version": "v0.10",
+    "role": "SH product vector quantization",
+    "status": "important",
+    "notes": "VQ256 18.26 MiB / 9.41x / 89.38%; 3 codebook indices per splat + 3x256x15 f16 codebooks."
+  },
+  {
+    "version": "v0.11",
+    "role": "VQ/RVQ quality sweep",
+    "status": "safe baseline",
+    "notes": "v11_vq256 18.24 MiB / 9.43x / 89.39%; RVQ64 not enough to replace default."
+  },
+  {
+    "version": "v0.12",
+    "role": "SARC-lite chartability audit",
+    "status": "rejected as active render",
+    "notes": "Aggressive chartability 52.22%, prototype 4.66 MiB, but visual parity bad; kept as advisor/LOD only."
+  },
+  {
+    "version": "v0.13",
+    "role": "SARC guard / accuracy-first integration",
+    "status": "guardrail",
+    "notes": "SARC demoted to sidecar/advisor; safe base + SARC sidecar 22.89 MiB; v12 active render rejected."
+  },
+  {
+    "version": "v0.14",
+    "role": "thesis absorption + phoxoidal math rebase",
+    "status": "math pivot",
+    "notes": "Phoxoidal blob kernel added: P(x)=alpha*exp(-A(x)); Gaussian path becomes teacher/fallback/residual path."
+  },
+  {
+    "version": "v0.15",
+    "role": "controlled PhoxBench synthetic proof",
+    "status": "math sanity",
+    "notes": "Phoxoidal improvement: bowl/saddle 99.99%, cusp/fold 72.73%, creased sheet 74.00%, ripple 6.17%, plane none."
+  },
+  {
+    "version": "v0.16",
+    "role": "Audi phoxoid replacement benchmark",
+    "status": "partial win",
+    "notes": "214 accepted candidates; 68,228 splats (8.93%); replacement ratio 318.82; estimated 16.64 MiB hybrid."
+  },
+  {
+    "version": "v0.17",
+    "role": "nearest-neighbor phoxoid predictive residual audit",
+    "status": "proxy audit",
+    "notes": "85 accepted predictive phoxoids; 23,203 splats (3.04%); estimated 17.91 MiB hybrid."
+  },
+  {
+    "version": "v0.18",
+    "role": "actual phoxoid residual payload sidecar",
+    "status": "written chunks",
+    "notes": "85 actual residual chunks; residual payload 285,666 bytes; estimated 17.96 MiB hybrid."
+  },
+  {
+    "version": "v0.19",
+    "role": "adaptive residual precision + context histogram audit",
+    "status": "audit",
+    "notes": "int8/int12/int16 per attribute; coverage improved to 4.82%."
+  },
+  {
+    "version": "v0.20",
+    "role": "hash-grid/Morton-neighborhood context prediction audit",
+    "status": "predictive audit",
+    "notes": "247 accepted chunks; 94,006 splats (12.31%); estimated 16.85 MiB entropy hybrid."
+  },
+  {
+    "version": "v0.21",
+    "role": "actual hash-context residual sidecar containers",
+    "status": "written sidecar",
+    "notes": "Wrote HASH_CONTEXT_RESIDUAL_V21 and ARCHIVE_EXACT_V21; 16.89 MiB actual-accounted hybrid."
+  },
+  {
+    "version": "v0.22",
+    "role": "fallback burn-down/native exact tier audit",
+    "status": "audit/prototype",
+    "notes": "Native coverage 31.20%; estimated hybrid 15.06 MiB; Tier B exact payload not yet written."
+  },
+  {
+    "version": "v0.23",
+    "role": "self-contained native container scaffold",
+    "status": "structural milestone",
+    "notes": "Actual v0.23 container 15,698,036 bytes / 14.97 MiB; external fallback dependency 0%; CRC 6/6."
+  },
+  {
+    "version": "v0.24",
+    "role": "hybrid decoder checkpoint from real PLY extraction",
+    "status": "decoder bootstrap",
+    "notes": "763,800 decoded splats; preview container 11.05 MiB; omitted full SH residuals and exact rotations."
+  },
+  {
+    "version": "v0.25",
+    "role": "honest real attribute-group native container",
+    "status": "truth substrate",
+    "notes": "29,998,695 bytes / 28.61 MiB; carries tier labels, XYZ u24, DC/opacity u8, scale f16, quaternion i16, SH q8."
+  },
+  {
+    "version": "v0.26",
+    "role": "attribute-debt diagnosis/checkpoint",
+    "status": "diagnostic",
+    "notes": "v25 debt shares: SH 41.89%, XYZ 20.81%, quaternion 19.19%, scale 9.61%, DC/opacity 8.49%."
+  },
+  {
+    "version": "v0.27",
+    "role": "SH attribute-debt breaker",
+    "status": "LATEST USABLE ANCHOR",
+    "notes": "18,796,089 bytes / 17.93 MiB; 9.59x / 89.57%; preserves non-SH groups, replaces SH q8 global with VQ128 idx/codebook. Not exact SH."
+  },
+  {
+    "version": "v0.28",
+    "role": "context-aware SH correction / render harness",
+    "status": "plan/harness",
+    "notes": "Current workspace has render harness and v29 plan, not full v28 binary recovered from pasted chat."
+  },
+  {
+    "version": "v0.29",
+    "role": "residual transform sweep harness",
+    "status": "synthetic only here",
+    "notes": "Harness ran synthetic smoke because real v25/v27 inputs were missing; do not treat as Audi compression result."
+  },
+  {
+    "version": "v0.30",
+    "role": "render truth gate",
+    "status": "next phase",
+    "notes": "Render original, v27 render core, v29 exact/archive if present, same camera, metrics/contact sheet before primitive work."
+  }
+]

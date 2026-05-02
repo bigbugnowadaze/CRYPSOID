@@ -1,0 +1,130 @@
+[
+  {
+    "scene": "happy",
+    "scene_description": "PLY mesh (happyStandRight_0.ply, 10000 pts after subsample)",
+    "blob_budget": 32,
+    "n_pts": 10000,
+    "fit_rmse": {
+      "gaussian": 0.017989609390497208,
+      "phoxoid": 0.01583225652575493
+    },
+    "fit_advantage_phoxoid_over_gaussian": 1.1362631322473098,
+    "image_psnr_gauss_vs_phoxoid_db": 26.58968389667478,
+    "killer_ratio_gaussian_blobs_to_match_phoxoid": 64,
+    "killer_ratio_normalized": 2.0,
+    "fit_seconds": 0.12687460000051942,
+    "render_seconds": 0.02725060000011581
+  },
+  {
+    "scene": "happy",
+    "scene_description": "PLY mesh (happyStandRight_0.ply, 10000 pts after subsample)",
+    "blob_budget": 64,
+    "n_pts": 10000,
+    "fit_rmse": {
+      "gaussian": 0.011478845961391926,
+      "phoxoid": 0.010131592862308025
+    },
+    "fit_advantage_phoxoid_over_gaussian": 1.1329754479274436,
+    "image_psnr_gauss_vs_phoxoid_db": 24.994375584347356,
+    "killer_ratio_gaussian_blobs_to_match_phoxoid": 128,
+    "killer_ratio_normalized": 2.0,
+    "fit_seconds": 0.10737349999999424,
+    "render_seconds": 0.021593599999505386
+  },
+  {
+    "scene": "armadillo",
+    "scene_description": "PLY mesh (ArmadilloBack_0.ply, 10000 pts after subsample)",
+    "blob_budget": 32,
+    "n_pts": 10000,
+    "fit_rmse": {
+      "gaussian": 0.00901769008487463,
+      "phoxoid": 0.007493638899177313
+    },
+    "fit_advantage_phoxoid_over_gaussian": 1.203379320274511,
+    "image_psnr_gauss_vs_phoxoid_db": 27.76283010537298,
+    "killer_ratio_gaussian_blobs_to_match_phoxoid": 64,
+    "killer_ratio_normalized": 2.0,
+    "fit_seconds": 0.052079000000048836,
+    "render_seconds": 0.017578200000571087
+  },
+  {
+    "scene": "armadillo",
+    "scene_description": "PLY mesh (ArmadilloBack_0.ply, 10000 pts after subsample)",
+    "blob_budget": 64,
+    "n_pts": 10000,
+    "fit_rmse": {
+      "gaussian": 0.00428418954834342,
+      "phoxoid": 0.0037344202864915133
+    },
+    "fit_advantage_phoxoid_over_gaussian": 1.1472167618199223,
+    "image_psnr_gauss_vs_phoxoid_db": 27.603974068652324,
+    "killer_ratio_gaussian_blobs_to_match_phoxoid": 128,
+    "killer_ratio_normalized": 2.0,
+    "fit_seconds": 0.13196239999979298,
+    "render_seconds": 0.03139339999961521
+  },
+  {
+    "scene": "doom",
+    "scene_description": "PLY mesh (Doom combat scene.ply, 10000 pts after subsample)",
+    "blob_budget": 32,
+    "n_pts": 10000,
+    "fit_rmse": {
+      "gaussian": 0.05016550049185753,
+      "phoxoid": 0.046702589839696884
+    },
+    "fit_advantage_phoxoid_over_gaussian": 1.0741481503284256,
+    "image_psnr_gauss_vs_phoxoid_db": 25.436605360954708,
+    "killer_ratio_gaussian_blobs_to_match_phoxoid": 64,
+    "killer_ratio_normalized": 2.0,
+    "fit_seconds": 0.0528426999999283,
+    "render_seconds": 0.016293399999995017
+  },
+  {
+    "scene": "doom",
+    "scene_description": "PLY mesh (Doom combat scene.ply, 10000 pts after subsample)",
+    "blob_budget": 64,
+    "n_pts": 10000,
+    "fit_rmse": {
+      "gaussian": 0.0340486578643322,
+      "phoxoid": 0.031405676156282425
+    },
+    "fit_advantage_phoxoid_over_gaussian": 1.0841561791218135,
+    "image_psnr_gauss_vs_phoxoid_db": 24.541315772777267,
+    "killer_ratio_gaussian_blobs_to_match_phoxoid": 128,
+    "killer_ratio_normalized": 2.0,
+    "fit_seconds": 0.09377709999989747,
+    "render_seconds": 0.018347999999605236
+  },
+  {
+    "scene": "audi",
+    "scene_description": "PLY mesh (audi_scene.ply, 10000 pts after subsample)",
+    "blob_budget": 32,
+    "n_pts": 10000,
+    "fit_rmse": {
+      "gaussian": 0.02857215516269207,
+      "phoxoid": 0.02727552130818367
+    },
+    "fit_advantage_phoxoid_over_gaussian": 1.0475383711225112,
+    "image_psnr_gauss_vs_phoxoid_db": 26.960369486011757,
+    "killer_ratio_gaussian_blobs_to_match_phoxoid": 64,
+    "killer_ratio_normalized": 2.0,
+    "fit_seconds": 0.05475690000002942,
+    "render_seconds": 0.013222700000369514
+  },
+  {
+    "scene": "audi",
+    "scene_description": "PLY mesh (audi_scene.ply, 10000 pts after subsample)",
+    "blob_budget": 64,
+    "n_pts": 10000,
+    "fit_rmse": {
+      "gaussian": 0.023083068430423737,
+      "phoxoid": 0.02189447730779648
+    },
+    "fit_advantage_phoxoid_over_gaussian": 1.0542872572803557,
+    "image_psnr_gauss_vs_phoxoid_db": 25.775647852261603,
+    "killer_ratio_gaussian_blobs_to_match_phoxoid": 128,
+    "killer_ratio_normalized": 2.0,
+    "fit_seconds": 0.09673300000031304,
+    "render_seconds": 0.01844619999974384
+  }
+]

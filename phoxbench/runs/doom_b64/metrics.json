@@ -1,0 +1,16 @@
+{
+  "scene": "doom",
+  "scene_description": "PLY mesh (Doom combat scene.ply, 10000 pts after subsample)",
+  "blob_budget": 64,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.0340486578643322,
+    "phoxoid": 0.031405676156282425
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.0841561791218135,
+  "image_psnr_gauss_vs_phoxoid_db": 24.541315772777267,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": 128,
+  "killer_ratio_normalized": 2.0,
+  "fit_seconds": 0.09377709999989747,
+  "render_seconds": 0.018347999999605236
+}

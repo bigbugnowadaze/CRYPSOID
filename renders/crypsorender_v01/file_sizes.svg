@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="344" viewBox="0 0 1100 344">
+<rect width="100%" height="100%" fill="#181820"/>
+<style>text{font-family:Inter,Helvetica,sans-serif;fill:#ddd}.lab{font-size:14px}.num{font-size:13px}.title{font-size:18px;fill:#fff;font-weight:600}</style>
+<text x="20" y="34" class="title">CRYPSOID file size vs original Audi A5 PLY</text>
+<text x="310" y="87.0" text-anchor="end" class="lab">Original PLY (raw 3DGS)</text>
+<rect x="330" y="68" width="550.0" height="28" fill="#888" rx="3"/>
+<text x="888.0" y="87.0" class="num">171.91 MiB  (100.0%, 1.00x smaller)</text>
+<text x="310" y="131.0" text-anchor="end" class="lab">v25 attribute-group container</text>
+<rect x="330" y="112" width="91.5" height="28" fill="#7c5" rx="3"/>
+<text x="429.53043413368476" y="131.0" class="num">28.61 MiB  (16.6%, 6.01x smaller)</text>
+<text x="310" y="175.0" text-anchor="end" class="lab">v27 SH-VQ render container</text>
+<rect x="330" y="156" width="57.4" height="28" fill="#5b9" rx="3"/>
+<text x="395.35020395207704" y="175.0" class="num">17.93 MiB  (10.4%, 9.59x smaller)</text>
+<text x="310" y="219.0" text-anchor="end" class="lab">v28 SH-VQ render container</text>
+<rect x="330" y="200" width="57.3" height="28" fill="#5b9" rx="3"/>
+<text x="395.3494381065231" y="219.0" class="num">17.93 MiB  (10.4%, 9.59x smaller)</text>
+<text x="310" y="263.0" text-anchor="end" class="lab">v28 q8-EXACT archive</text>
+<rect x="330" y="244" width="98.1" height="28" fill="#3a7" rx="3"/>
+<text x="436.13364298383925" y="263.0" class="num">30.67 MiB  (17.8%, 5.60x smaller)</text>
+<text x="310" y="307.0" text-anchor="end" class="lab">v29 best residual archive</text>
+<rect x="330" y="288" width="96.5" height="28" fill="#173" rx="3"/>
+<text x="434.46300430354165" y="307.0" class="num">30.15 MiB  (17.5%, 5.70x smaller)</text>
+<text x="20" y="332" class="num" fill="#888">Reference: PLY = 180,258,277 bytes</text>
+</svg>

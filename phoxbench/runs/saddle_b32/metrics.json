@@ -1,0 +1,16 @@
+{
+  "scene": "saddle",
+  "scene_description": "z = s^2 - t^2  (opposite-sign curvatures)",
+  "blob_budget": 32,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.01183652225881815,
+    "phoxoid": 0.008182077668607235
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.4466401735872276,
+  "image_psnr_gauss_vs_phoxoid_db": 27.38382164868785,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": 64,
+  "killer_ratio_normalized": 2.0,
+  "fit_seconds": 0.04944629999999961,
+  "render_seconds": 0.013963800000055926
+}

@@ -1,0 +1,175 @@
+{
+  "cycle": "v0.28",
+  "title": "Context-aware SH correction chunks for q8-exact archive mode",
+  "status": "Built v28 render and q8-exact archive containers. VQ render core remains small; archive mode carries per-tier/per-channel residual chunks that exactly reconstruct the v25 q8 SH stream. This separates render-size mode from exact-storage mode without lying about fidelity.",
+  "source": {
+    "splats": 763800,
+    "source_ply_bytes": 180258809,
+    "v11_vq256_bytes": 19123179,
+    "v25_full_attribute_bytes": 29998397,
+    "v27_render_bytes": 18796089
+  },
+  "v28": {
+    "render_container_bytes": 18795838,
+    "render_container_mib": 17.925107955932617,
+    "archive_exact_container_bytes": 32162548,
+    "archive_exact_container_mib": 30.672595977783203,
+    "render_delta_vs_v11_percent": -1.7117499135473224,
+    "archive_delta_vs_v25_percent": 7.214222146603366,
+    "archive_delta_vs_v11_percent": 68.18619958533046,
+    "archive_ratio_vs_source_ply": 5.60461842140119,
+    "archive_reduction_vs_source_ply_percent": 82.15757211621208
+  },
+  "correction": {
+    "encoding_variants": [
+      {
+        "name": "global_full",
+        "compressed_bytes": 12848777,
+        "raw_bytes": 34371000,
+        "chunk_count": 1
+      },
+      {
+        "name": "per_group",
+        "compressed_bytes": 13084683,
+        "raw_bytes": 34371000,
+        "chunk_count": 3
+      },
+      {
+        "name": "per_tier_group",
+        "compressed_bytes": 13360400,
+        "raw_bytes": 34371000,
+        "chunk_count": 9
+      },
+      {
+        "name": "sparse_mask_values",
+        "compressed_bytes": 14283367,
+        "raw_bytes": 33584488,
+        "chunk_count": 3
+      }
+    ],
+    "chosen": "per_tier_group",
+    "chosen_correction_bytes": 13360400,
+    "residual_dtype": "int8",
+    "residual_min": -85,
+    "residual_max": 104,
+    "exact_ok_prewrite": true,
+    "crc_ok": true,
+    "readback_exact_sh_reconstruction": true,
+    "residual_histogram": {
+      "abs_le_0": 0.1478830118413779,
+      "abs_le_1": 0.37898437636379506,
+      "abs_le_2": 0.548501818393413,
+      "abs_le_4": 0.7458838555759215,
+      "abs_le_8": 0.8974315556719328,
+      "abs_le_16": 0.9752760757615432,
+      "abs_le_32": 0.9976423729306683,
+      "abs_le_64": 0.9999744552093335,
+      "abs_le_128": 1.0
+    },
+    "rmse_q8_by_group": [
+      5.938798363437766,
+      5.883498455149498,
+      5.730437789194307
+    ],
+    "max_abs_by_group": [
+      104,
+      86,
+      96
+    ],
+    "zero_fraction_by_group": [
+      0.1487929649995636,
+      0.1499389892642053,
+      0.14491708126036484
+    ],
+    "tier_group_stats": [
+      {
+        "tier": 0,
+        "count": 94006,
+        "groups": [
+          {
+            "group": 0,
+            "raw_bytes": 1410090,
+            "compressed_bytes": 517658,
+            "rmse_q8": 3.9328714652782084,
+            "zero_fraction": 0.16077484415888346
+          },
+          {
+            "group": 1,
+            "raw_bytes": 1410090,
+            "compressed_bytes": 516963,
+            "rmse_q8": 3.94377219785385,
+            "zero_fraction": 0.1612528278336844
+          },
+          {
+            "group": 2,
+            "raw_bytes": 1410090,
+            "compressed_bytes": 519151,
+            "rmse_q8": 3.9833035397291017,
+            "zero_fraction": 0.15752966122729756
+          }
+        ]
+      },
+      {
+        "tier": 1,
+        "count": 144271,
+        "groups": [
+          {
+            "group": 0,
+            "raw_bytes": 2164065,
+            "compressed_bytes": 804566,
+            "rmse_q8": 3.640365300468543,
+            "zero_fraction": 0.17116167952441355
+          },
+          {
+            "group": 1,
+            "raw_bytes": 2164065,
+            "compressed_bytes": 803238,
+            "rmse_q8": 3.6196558781872334,
+            "zero_fraction": 0.16993251126930106
+          },
+          {
+            "group": 2,
+            "raw_bytes": 2164065,
+            "compressed_bytes": 806121,
+            "rmse_q8": 3.6124032062901152,
+            "zero_fraction": 0.16724081762793633
+          }
+        ]
+      },
+      {
+        "tier": 2,
+        "count": 525523,
+        "groups": [
+          {
+            "group": 0,
+            "raw_bytes": 7882845,
+            "compressed_bytes": 3139434,
+            "rmse_q8": 6.6974478644307665,
+            "zero_fraction": 0.14050878838794878
+          },
+          {
+            "group": 1,
+            "raw_bytes": 7882845,
+            "compressed_bytes": 3123865,
+            "rmse_q8": 6.628086177133391,
+            "zero_fraction": 0.14242637017472753
+          },
+          {
+            "group": 2,
+            "raw_bytes": 7882845,
+            "compressed_bytes": 3129404,
+            "rmse_q8": 6.426992805146081,
+            "zero_fraction": 0.13653243213585958
+          }
+        ]
+      }
+    ]
+  },
+  "outputs": {
+    "render_container": "outputs/v28_sh_vq_render_container.3dphox",
+    "archive_exact_container": "outputs/v28_sh_vq_exact_archive_container.3dphox",
+    "size_bars": "outputs/v28_exact_archive_size_bars.svg",
+    "residual_histogram": "outputs/v28_sh_residual_histogram.svg"
+  },
+  "next": "v0.29 should reduce archive correction debt using context-conditioned codebooks or transform-coded residuals, because v28 exact archive is truthful but larger than the render core."
+}

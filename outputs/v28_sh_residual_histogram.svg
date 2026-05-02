@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="300"><rect width="100%" height="100%" fill="white"/><style>text{font-family:monospace;font-size:13px}</style><text x="20" y="25">SH VQ residual absolute-error cumulative histogram</text>
+<rect x="60" y="227.5" width="52" height="32.5" fill="#333"/><text x="58" y="280">≤0</text><text x="50" y="217.5">14.8%</text>
+<rect x="150" y="176.6" width="52" height="83.4" fill="#333"/><text x="148" y="280">≤1</text><text x="140" y="166.6">37.9%</text>
+<rect x="240" y="139.3" width="52" height="120.7" fill="#333"/><text x="238" y="280">≤2</text><text x="230" y="129.3">54.9%</text>
+<rect x="330" y="95.9" width="52" height="164.1" fill="#333"/><text x="328" y="280">≤4</text><text x="320" y="85.9">74.6%</text>
+<rect x="420" y="62.6" width="52" height="197.4" fill="#333"/><text x="418" y="280">≤8</text><text x="410" y="52.6">89.7%</text>
+<rect x="510" y="45.4" width="52" height="214.6" fill="#333"/><text x="508" y="280">≤16</text><text x="500" y="35.4">97.5%</text>
+<rect x="600" y="40.5" width="52" height="219.5" fill="#333"/><text x="598" y="280">≤32</text><text x="590" y="30.5">99.8%</text>
+<rect x="690" y="40.0" width="52" height="220.0" fill="#333"/><text x="688" y="280">≤64</text><text x="680" y="30.0">100.0%</text>
+<rect x="780" y="40.0" width="52" height="220.0" fill="#333"/><text x="778" y="280">≤128</text><text x="770" y="30.0">100.0%</text>
+</svg>

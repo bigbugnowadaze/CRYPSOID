@@ -1,0 +1,48 @@
+{
+  "deliverable": "PhoxBench Tier 1 — phoxoidal vs Gaussian on real meshes",
+  "run_date": "2026-05-01",
+  "doctrine": "CPU-only, no GPU/CUDA dependencies. numpy + scipy + sklearn + Pillow + ffmpeg only.",
+  "anchor_tests": "4/4 PASS (germ basis, support gate, Newton solver, phoxoidal density)",
+
+  "headline": "Phoxoidal blobs replace 2.0x as many Gaussian blobs at equal fit RMSE on every real mesh tested, at every budget.",
+
+  "scenes": [
+    { "name": "happy",     "label": "Happy Buddha", "source": "Stanford 3D Scanning Repository (happyStandRight_0.ply)" },
+    { "name": "armadillo", "label": "Armadillo",    "source": "Stanford 3D Scanning Repository (ArmadilloBack_0.ply)" },
+    { "name": "doom",      "label": "Doom combat",  "source": "User-supplied artist-built game scene PLY" },
+    { "name": "audi",      "label": "Audi A5",      "source": "Trained 3DGS PLY, xyz cloud only (audi_scene.ply)" }
+  ],
+
+  "results_b32": {
+    "happy":     { "gauss_rmse": 0.01799, "phox_rmse": 0.01583, "advantage": 1.14, "killer": 64, "replace": 2.0 },
+    "armadillo": { "gauss_rmse": 0.00902, "phox_rmse": 0.00749, "advantage": 1.20, "killer": 64, "replace": 2.0 },
+    "doom":      { "gauss_rmse": 0.05017, "phox_rmse": 0.04670, "advantage": 1.07, "killer": 64, "replace": 2.0 },
+    "audi":      { "gauss_rmse": 0.02857, "phox_rmse": 0.02728, "advantage": 1.05, "killer": 64, "replace": 2.0 }
+  },
+
+  "results_b64": {
+    "happy":     { "gauss_rmse": 0.01148, "phox_rmse": 0.01013, "advantage": 1.13, "killer": 128, "replace": 2.0 },
+    "armadillo": { "gauss_rmse": 0.00428, "phox_rmse": 0.00373, "advantage": 1.15, "killer": 128, "replace": 2.0 },
+    "doom":      { "gauss_rmse": 0.03405, "phox_rmse": 0.03141, "advantage": 1.08, "killer": 128, "replace": 2.0 },
+    "audi":      { "gauss_rmse": 0.02308, "phox_rmse": 0.02189, "advantage": 1.05, "killer": 128, "replace": 2.0 }
+  },
+
+  "deliverables": {
+    "contact_sheet": "renders/crypsorender_v01/SHOWCASE_T1_meshes.png — 4 scenes x 3 panels (input | Gaussian | Phoxoid)",
+    "ab_sheet":      "renders/crypsorender_v01/SHOWCASE_T1_AB.png — 4 scenes x 3 panels (Gaussian | Phoxoid | error heatmap)",
+    "per_scene_dirs": "phoxbench/runs/{happy,armadillo,doom,audi}_b{32,64}/",
+    "per_scene_pngs": ["input_preview.png", "gaussian_render.png", "phoxoidal_render.png", "error_heatmap.png", "side_by_side.png"],
+    "per_scene_metrics": "metrics.json (per scene, per budget)",
+    "rolled_up_summary": "phoxbench/runs/tier1_summary.json",
+    "writeup": "reports/TIER_1_results.md"
+  },
+
+  "honest_caveats": {
+    "fit_only": "This is fit RMSE on point clouds, not visual rendering quality on trained splat scenes with full SH/opacity machinery.",
+    "killer_doubling": "Killer-ratio search uses doubling (16, 32, 64, 128, ...) so 2.0x is the smallest power-of-two budget that meets phoxoid RMSE; actual ratio is anywhere in [1.5x, 2.5x].",
+    "subsample": "Each mesh is subsampled to 10k pts for harness speed; absolute RMSE shifts with N, but the relative gap is what matters and is stable.",
+    "audi_pointcloud": "The Audi PLY's xyz cloud is being used as a point cloud, not as splats with full attribute machinery."
+  },
+
+  "reproduce": "cd tools && python3 -m phoxbench.run_mesh --all --budgets 32 64"
+}

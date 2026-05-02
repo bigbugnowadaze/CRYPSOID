@@ -1,0 +1,102 @@
+{
+  "cycle": "v0.25",
+  "input": {
+    "source_splats": 763800,
+    "source_ply_bytes": 180258809,
+    "v11_vq256_bytes": 19123179
+  },
+  "outputs": {
+    "container": "outputs/v25_attribute_group_render_container.3dphox"
+  },
+  "chunks": [
+    {
+      "name": "tier_labels_u8",
+      "dtype": "uint8",
+      "shape": [
+        763800
+      ],
+      "semantic": "tier labels: 0=A native render, 1=B native exact, 2=C fallback",
+      "raw_bytes": 763800,
+      "compressed_bytes": 3754,
+      "crc32_raw": 1709369810,
+      "offset": 0
+    },
+    {
+      "name": "xyz_u24_fixed",
+      "dtype": "uint8",
+      "shape": [
+        763800,
+        9
+      ],
+      "semantic": "3x 24-bit little-endian fixed-point XYZ",
+      "bounds_min": [
+        -3.362961769104004,
+        -0.9357511401176453,
+        -4.016378879547119
+      ],
+      "bounds_max": [
+        3.461547613143921,
+        1.3097870349884033,
+        3.987544298171997
+      ],
+      "raw_bytes": 6874200,
+      "compressed_bytes": 6242122,
+      "crc32_raw": 1731195431,
+      "offset": 3754
+    },
+    {
+      "name": "dc_rgb_opacity_u8",
+      "dtype": "uint8",
+      "shape": [
+        763800,
+        4
+      ],
+      "semantic": "DC RGB (3DGS convention) + 8-bit opacity",
+      "raw_bytes": 3055200,
+      "compressed_bytes": 2547608,
+      "crc32_raw": 3070640552,
+      "offset": 6245876
+    },
+    {
+      "name": "scale_f16",
+      "dtype": "float16",
+      "shape": [
+        763800,
+        3
+      ],
+      "semantic": "three IEEE-754 binary16 scale values",
+      "raw_bytes": 4582800,
+      "compressed_bytes": 2882949,
+      "crc32_raw": 1986245021,
+      "offset": 8793484
+    },
+    {
+      "name": "quat_i16_norm4",
+      "dtype": "int16",
+      "shape": [
+        763800,
+        4
+      ],
+      "semantic": "quaternion as 4x int16, scaled by 32767",
+      "raw_bytes": 6110400,
+      "compressed_bytes": 5755963,
+      "crc32_raw": 1697264870,
+      "offset": 11676433
+    },
+    {
+      "name": "sh_rest_q8_global",
+      "dtype": "int8",
+      "shape": [
+        763800,
+        45
+      ],
+      "semantic": "SH rest coefficients (degree 1-3, 45 total) quantized q8",
+      "global_scale": 0.006946287755891094,
+      "raw_bytes": 34371000,
+      "compressed_bytes": 12563450,
+      "crc32_raw": 1169026966,
+      "offset": 17432396
+    }
+  ],
+  "truth_contract": "Honest full-attribute container: q8 SH (global_scale), u24 XYZ fixed, f16 scale, i16 quaternion, u8 DC/opacity. Not lossless against source float32 PLY."
+}
