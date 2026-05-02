@@ -128,9 +128,10 @@ For each of N phoxoids:
 3 = mirror-like
 4 = transparent / refractive
 5 = emissive
+6 = floater (background junk; Clean-GS / EFA-GS style)
 ```
 
-These are *coarse classes* — exactly the absorption ChatGPT correctly identified from TransparentGS. Enough to drive renderer behavior; not committing to a specific BRDF.
+These are *coarse classes* — enough to drive renderer behavior; not committing to a specific BRDF. Class 6 (floater) was added on 2026-05-02 after the v31-implementation pass made the floater problem concrete (the full-density Audi render had its body washed out by halo splats — `SHOWCASE_HIGHEST_MAX.png`).
 
 ### `confidence` byte
 0 = "I don't know what this is" (treat as enum=0, fall back to SH).
@@ -149,7 +150,38 @@ From per-phoxoid SH coefficient distribution:
 | Sharp angular peaks in band-3 SH | 3 (mirror-like) |
 | Negative ambient + bright SH peaks | 5 (emissive) |
 | DC near zero + high opacity gradient | 4 (transparent) — heuristic, low confidence |
+| Low surface-variation + isolated (long kNN edges) + low opacity | **6 (floater)** — EFA-GS-style |
 | Anything else | 0 (unknown) |
+
+**EFA-GS-style floater detection (Phase 1.5, added 2026-05-02):** The Clean-GS / EFA-GS class of papers identifies "floater" splats — background junk that doesn't represent real surface — by *low-frequency-first residual diagnosis*. CRYPSOID's cheap analog (composable from data we already have):
+
+1. Long kNN edges (mean of edges chunk's distances > p90 of all edges) → splat sits in a sparse region.
+2. Low surface-variation index (κ ≈ 0) → no real curvature signal; suggests it's not a coherent surface element.
+3. Low opacity (sigmoid logit < threshold) → already partially fading.
+
+Combined: classify as `floater` with confidence proportional to how strongly all three conditions agree. Renderer can then either render with reduced opacity OR skip entirely (LOD prune). The `.phoxdelta` demo (`SHOWCASE_v31delta_compare.png`) showed the visual win of fading the floor halo — a derived `material_hint=floater` field would automate that decision instead of needing an explicit y-coordinate threshold.
+
+### Field 4 — `mip_zoom` (Mip-Splatting style, added 2026-05-02)
+
+A 1-byte per-phoxoid "max-zoom frequency" field that tells the renderer at what camera distance the splat begins to alias (Mip-Splatting). Below the zoom threshold, the renderer applies a 2D pre-filter to the splat to prevent the "small splats become aliased dots" failure mode.
+
+| Field | Bytes | Encoding |
+|---|---:|---|
+| `mip_zoom` | 1 | u8 — log₂(max-frequency in screen pixels), clamped to [0, 255] |
+
+Adds 1 byte/blob (=763 KB on Audi). Brings total v33 cost to **4 bytes/blob (~+9.5% on Audi)**, still much cheaper than v31's +47%.
+
+### FeatureGS classification (optional, 2026-05-02)
+
+Use eigenvalues `(λ_0, λ_1, λ_2)` of the local covariance (already computed in MLS pass) to classify the splat's local structure:
+
+| Classification | Eigenvalue ratio | Notes |
+|---|---|---|
+| linear (edge / wire) | λ_2 ≫ λ_1 ≈ λ_0 | one dominant direction |
+| planar (surface) | λ_2 ≈ λ_1 ≫ λ_0 | two dominant; one small (the normal) |
+| scattered (volume / floater) | λ_2 ≈ λ_1 ≈ λ_0 | no dominant direction |
+
+This is *additive to v32b's κ* — same eigenvalues, ternary classification instead of scalar. Doesn't need a new field; can be folded into `material_hint` as values 7/8/9 if useful, or computed at render time from the existing curvature signal.
 
 Confidence is calibrated from the *strength* of the matching pattern (how cleanly the SH fits the template). Cheap to compute; runs in seconds across all 763k Audi splats.
 

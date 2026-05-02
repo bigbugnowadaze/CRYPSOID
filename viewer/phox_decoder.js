@@ -234,3 +234,116 @@ function float16ToFloat32(h) {
     if (exp === 0x1f) return frac ? NaN : (sign ? -Infinity : Infinity);
     return (sign ? -1 : 1) * Math.pow(2, exp - 15) * (1 + frac / 1024);
 }
+
+
+// ---------- v31 trailer parsing ----------
+// A v31-versioned .3dphox is: [v28 archive bytes] + [CRYPSOID31\0] + [u64 manifest_len] + [JSON manifest] + [chunks]
+// Backward-compatible: v28 readers stop at the v28 region; v31 readers detect the trailer marker.
+
+const V31_MAGIC = "CRYPSOID31\x00";
+
+export function parseV31Trailer(arrayBuffer) {
+    const u8 = new Uint8Array(arrayBuffer);
+    const dv = new DataView(arrayBuffer);
+    // Search backwards for the trailer marker (last 30 MB at most — typically near end of file)
+    const sentinel = new TextEncoder().encode(V31_MAGIC);
+    let pos = -1;
+    // scan from later half, byte-by-byte (small enough since file is tens of MB)
+    const scanFrom = Math.max(0, u8.length - 50 * 1024 * 1024);
+    outer: for (let i = u8.length - sentinel.length; i >= scanFrom; i--) {
+        for (let j = 0; j < sentinel.length; j++) {
+            if (u8[i + j] !== sentinel[j]) continue outer;
+        }
+        pos = i; break;
+    }
+    if (pos < 0) return null;   // no v31 trailer
+    let p = pos + sentinel.length;
+    const mlen = readU64LE(dv, p); p += 8;
+    const manifestBytes = u8.slice(p, p + mlen);
+    const manifest = JSON.parse(new TextDecoder("utf-8").decode(manifestBytes));
+    p += mlen;
+    const chunkRegion = u8.slice(p);
+    const chunks = {};
+    for (const c of manifest.chunks) {
+        const start = c.offset_in_trailer;
+        const end = start + c.size_bytes;
+        chunks[c.name] = chunkRegion.slice(start, end);
+    }
+    return { magic: V31_MAGIC, manifest, chunks };
+}
+
+
+// ---------- v31 chunk decoders ----------
+
+// Octahedral 24-bit + 8-bit tangent → unit normal
+export function decodeNormalsChunk(chunkBytes) {
+    // Header: 1 B version + 1 B reserved + 4 B count + N*4 payload + 4 B CRC
+    const dv = new DataView(chunkBytes.buffer, chunkBytes.byteOffset, chunkBytes.byteLength);
+    const version = chunkBytes[0];
+    if (version !== 0x01) throw new Error("normals chunk version " + version);
+    const n = dv.getUint32(2, true);
+    const expected = 6 + n*4 + 4;
+    if (chunkBytes.length !== expected) throw new Error("normals chunk len " + chunkBytes.length + " != " + expected);
+    const payload = chunkBytes.subarray(6, 6 + n*4);
+    const out = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) {
+        const b0 = payload[i*4 + 0];
+        const b1 = payload[i*4 + 1];
+        const b2 = payload[i*4 + 2];
+        // unpack 12-bit qx + 12-bit qy
+        const qx = ((b1 & 0x0F) << 8) | b0;
+        const qy = (b2 << 4) | ((b1 >> 4) & 0x0F);
+        let x = (qx / 4095.0) * 2.0 - 1.0;
+        let y = (qy / 4095.0) * 2.0 - 1.0;
+        let z = 1.0 - Math.abs(x) - Math.abs(y);
+        if (z < 0.0) {
+            const xS = x >= 0 ? 1 : -1;
+            const yS = y >= 0 ? 1 : -1;
+            const xT = (1.0 - Math.abs(y)) * xS;
+            const yT = (1.0 - Math.abs(x)) * yS;
+            x = xT; y = yT;
+        }
+        const len = Math.sqrt(x*x + y*y + z*z);
+        out[i*3 + 0] = x / len;
+        out[i*3 + 1] = y / len;
+        out[i*3 + 2] = z / len;
+    }
+    return out;
+}
+
+// 4 bytes/blob: hint + confidence + view_dep + mip_zoom
+export function decodeMaterialChunk(chunkBytes) {
+    const dv = new DataView(chunkBytes.buffer, chunkBytes.byteOffset, chunkBytes.byteLength);
+    const version = chunkBytes[0];
+    if (version !== 0x01) throw new Error("material chunk version " + version);
+    const fields = chunkBytes[1];
+    if (fields !== 0x04) throw new Error("expected 4 fields, got " + fields);
+    const n = dv.getUint32(2, true);
+    const expected = 6 + n*4 + 4;
+    if (chunkBytes.length !== expected) throw new Error("material chunk len " + chunkBytes.length + " != " + expected);
+    const payload = chunkBytes.subarray(6, 6 + n*4);
+    const hint = new Uint8Array(n);
+    const confidence = new Uint8Array(n);
+    const viewDep = new Uint8Array(n);
+    const mipZoom = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+        hint[i]       = payload[i*4 + 0];
+        confidence[i] = payload[i*4 + 1];
+        viewDep[i]    = payload[i*4 + 2];
+        mipZoom[i]    = payload[i*4 + 3];
+    }
+    return { hint, confidence, viewDep, mipZoom };
+}
+
+// kNN edges: 16 bytes/blob (4 × u32)
+export function decodeEdgesChunk(chunkBytes) {
+    const dv = new DataView(chunkBytes.buffer, chunkBytes.byteOffset, chunkBytes.byteLength);
+    const version = chunkBytes[0];
+    if (version !== 0x01) throw new Error("edges chunk version " + version);
+    const k = chunkBytes[1];
+    const n = dv.getUint32(2, true);
+    const expected = 6 + n*k*4 + 4;
+    if (chunkBytes.length !== expected) throw new Error("edges chunk len " + chunkBytes.length + " != " + expected);
+    const payload = chunkBytes.subarray(6, 6 + n*k*4);
+    return { neighbors: new Uint32Array(payload.buffer, payload.byteOffset, n*k), k };
+}

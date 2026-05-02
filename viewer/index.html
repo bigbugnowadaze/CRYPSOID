@@ -46,6 +46,9 @@
       <option value="full">Full color (DC + SH)</option>
       <option value="dc">DC only</option>
       <option value="tier">Tier overlay (A=red B=green C=blue)</option>
+      <option value="lit">Lit (v32a Lambert, needs v31 normals)</option>
+      <option value="lit-dim-floaters">Lit + dim floaters (v32a + v33)</option>
+      <option value="material-overlay">Material overlay (v33 hint colors)</option>
     </select>
   </div>
   <div class="row">
@@ -61,7 +64,7 @@
 </div>
 
 <script type="module">
-import { loadPhoxAll } from "./phox_decoder.js";
+import { loadPhoxAll, parseV31Trailer, decodeNormalsChunk, decodeMaterialChunk, decodeEdgesChunk } from "./phox_decoder.js";
 
 const canvas = document.getElementById("canvas");
 const status = document.getElementById("status");
@@ -297,15 +300,59 @@ function rebuildColors() {
         for (let i = 0; i < scene.n; i++) {
             rgb[i*3]=scene.dc[i*3]; rgb[i*3+1]=scene.dc[i*3+1]; rgb[i*3+2]=scene.dc[i*3+2];
         }
+    } else if (renderMode === "lit" || renderMode === "lit-dim-floaters") {
+        // v32a Lambert + ambient + directional sun, using v31 normals if present
+        if (!scene.normals) {
+            // Fall back to DC if no v31 normals
+            rgb = new Float32Array(scene.n * 3);
+            for (let i = 0; i < scene.n; i++) {
+                rgb[i*3]=scene.dc[i*3]; rgb[i*3+1]=scene.dc[i*3+1]; rgb[i*3+2]=scene.dc[i*3+2];
+            }
+        } else {
+            const sunDir = [0.4, -0.7, 0.6];
+            const sunMag = Math.sqrt(sunDir[0]*sunDir[0]+sunDir[1]*sunDir[1]+sunDir[2]*sunDir[2]);
+            const Lx = -sunDir[0]/sunMag, Ly = -sunDir[1]/sunMag, Lz = -sunDir[2]/sunMag;
+            const ambR = 0.18, ambG = 0.20, ambB = 0.28;
+            const sunR = 1.0*1.4, sunG = 0.95*1.4, sunB = 0.82*1.4;
+            rgb = new Float32Array(scene.n * 3);
+            const N = scene.normals;
+            for (let i = 0; i < scene.n; i++) {
+                const ndl = Math.max(0, N[i*3]*Lx + N[i*3+1]*Ly + N[i*3+2]*Lz);
+                const dr = scene.dc[i*3], dg = scene.dc[i*3+1], db = scene.dc[i*3+2];
+                rgb[i*3]   = Math.min(1.0, ambR*dr + sunR*dr*ndl);
+                rgb[i*3+1] = Math.min(1.0, ambG*dg + sunG*dg*ndl);
+                rgb[i*3+2] = Math.min(1.0, ambB*db + sunB*db*ndl);
+            }
+        }
+    } else if (renderMode === "material-overlay") {
+        // v33 overlay: color by material_hint
+        rgb = new Float32Array(scene.n * 3);
+        const palette = [
+            [0.30, 0.30, 0.35],   // 0 unknown
+            [0.55, 0.65, 0.80],   // 1 diffuse
+            [0.95, 0.75, 0.20],   // 2 glossy
+            [0.95, 0.25, 0.25],   // 3 mirror
+            [0.20, 0.85, 0.85],   // 4 transparent
+            [1.00, 1.00, 0.40],   // 5 emissive
+            [0.85, 0.30, 0.85],   // 6 floater
+        ];
+        const hint = scene.material ? scene.material.hint : null;
+        for (let i = 0; i < scene.n; i++) {
+            const c = palette[hint ? hint[i] : 0];
+            rgb[i*3]=c[0]; rgb[i*3+1]=c[1]; rgb[i*3+2]=c[2];
+        }
     } else {
         rgb = evalShColor(scene.dc, scene.sh_rest, view, scene.n);
     }
     const colorAlpha = new Float32Array(scene.n * 4);
+    const dimFloaters = renderMode === "lit-dim-floaters" && scene.material;
     for (let i = 0; i < scene.n; i++) {
         colorAlpha[i*4]   = rgb[i*3];
         colorAlpha[i*4+1] = rgb[i*3+1];
         colorAlpha[i*4+2] = rgb[i*3+2];
-        colorAlpha[i*4+3] = scene.opacity[i];
+        let a = scene.opacity[i];
+        if (dimFloaters && scene.material.hint[i] === 6) a *= 0.05;
+        colorAlpha[i*4+3] = a;
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
     gl.bufferData(gl.ARRAY_BUFFER, colorAlpha, gl.DYNAMIC_DRAW);
@@ -403,17 +450,43 @@ async function loadFile(file) {
     try {
         const buf = await file.arrayBuffer();
         scene = await loadPhoxAll(buf);
+        // Try v31 trailer
+        const v31 = parseV31Trailer(buf);
+        if (v31) {
+            scene.v31_format = v31.manifest.format;
+            for (const c of v31.manifest.chunks) {
+                if (c.chunk_id === 0x12) {
+                    scene.normals = decodeNormalsChunk(v31.chunks[c.name]);
+                } else if (c.chunk_id === 0x13) {
+                    scene.edges = decodeEdgesChunk(v31.chunks[c.name]);
+                } else if (c.chunk_id === 0x14) {
+                    scene.material = decodeMaterialChunk(v31.chunks[c.name]);
+                }
+            }
+        }
     } catch (e) { status.textContent = "ERROR: " + e.message; console.error(e); return; }
     const dt = performance.now() - t0;
     setupBuffers();
     const tierCounts = [0, 0, 0];
     for (let i = 0; i < scene.n; i++) tierCounts[scene.tier[i]]++;
     status.innerHTML = `<b>${file.name}</b> <span class="pill">${scene.format || scene.magic.trim()}</span><br>${scene.n.toLocaleString()} splats decoded in ${dt.toFixed(0)} ms`;
+    let v31s = "";
+    if (scene.normals) v31s += "v31 normals: " + scene.normals.length/3 + "<br>";
+    if (scene.edges) v31s += "v31 kNN edges: k=" + scene.edges.k + "<br>";
+    if (scene.material) {
+        const counts = new Array(7).fill(0);
+        for (let i = 0; i < scene.n; i++) counts[scene.material.hint[i]]++;
+        const names = ['unknown','diffuse','glossy','mirror','transparent','emissive','floater'];
+        v31s += "v33 materials: ";
+        for (let i = 0; i < 7; i++) if (counts[i]) v31s += `${names[i]}=${counts[i]} `;
+        v31s += "<br>";
+    }
     stats.innerHTML = `Tier A=${tierCounts[0].toLocaleString()} (${(100*tierCounts[0]/scene.n).toFixed(1)}%)<br>` +
                       `Tier B=${tierCounts[1].toLocaleString()} (${(100*tierCounts[1]/scene.n).toFixed(1)}%)<br>` +
                       `Tier C=${tierCounts[2].toLocaleString()} (${(100*tierCounts[2]/scene.n).toFixed(1)}%)<br>` +
                       `Has SH residuals: ${scene.sh_rest ? "yes" : "no (DC only)"}<br>` +
-                      `Format: ${scene.is_exact ? "EXACT archive" : "render container"}`;
+                      `Format: ${scene.is_exact ? "EXACT archive" : "render container"}<br>` +
+                      v31s;
 }
 
 loadBtn.onclick = () => fileInput.click();

@@ -40,6 +40,9 @@ the window. Or click "Load .3dphox" and pick one with the file dialog.
 | `outputs/v25_attribute_group_render_container.3dphox` | yes | full SH from raw int8 stream |
 | `outputs/v28_sh_vq_render_container.3dphox` | yes | SH reconstructed from VQ codebook |
 | `outputs/v28_sh_vq_exact_archive_container.3dphox` | yes | SH reconstructed via VQ + per-tier-group residuals (bit-exact to v25) |
+| `outputs/v31_audi_with_normals.3dphox` | yes (v31 trailer parsed) | also exposes per-splat normals for the lit modes |
+| `outputs/v31_audi_normals_edges.3dphox` | yes (v31 trailer parsed) | normals + kNN edges chunks loaded |
+| `outputs/v31_audi_full_v33.3dphox` | yes (v31 trailer parsed) | normals + edges + v33 material_hint chunk; enables lit + dim-floaters + material-overlay modes |
 | `recovery_v2/v27_attribute_group_sh_vq_render_container.3dphox` | yes | identical layout to v28 render |
 
 A standard 3DGS `.ply` is **not** supported by this viewer (use one of the
@@ -53,7 +56,7 @@ first-class format.
 |---|---|
 | Mouse drag | orbit |
 | Mouse wheel | zoom |
-| Render mode dropdown | `Full color` (DC + SH) / `DC only` / `Tier overlay` |
+| Render mode dropdown | `Full color` (DC + SH) / `DC only` / `Tier overlay` / `Lit` (v32a Lambert, needs v31 normals) / `Lit + dim floaters` (v32a + v33 material_hint) / `Material overlay` (v33 hint colors) |
 | Splat scale slider | uniform multiplier on splat sigma |
 | Splat alpha cap slider | uniform multiplier on opacity |
 
@@ -91,6 +94,10 @@ first-class format.
 | `decode_dc_rgb_opacity_u8` | `decodeDcRgbOpacityU8` |
 | `load_3dphox_v28_render` (VQ SH path) | `reconstructShVq128` |
 | `load_3dphox_v28_archive` (VQ + per-tier residual SH) | `reconstructShExactArchive` |
+| `normals_codec.read_normals_chunk` | `decodeNormalsChunk` |
+| `edges_codec.read_edges_chunk` | `decodeEdgesChunk` |
+| `material_codec.read_material_chunk` | `decodeMaterialChunk` |
+| (no Python equivalent — v31 trailer is browser-side) | `parseV31Trailer` |
 
 If you change the Python decoder, mirror the change in JS and vice versa.
 There's no shared header file; the format itself is the contract.
