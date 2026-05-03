@@ -1,0 +1,100 @@
+{
+  "source": "F.27 procedural CGI car",
+  "n_total": 358996,
+  "parts": [
+    {
+      "name": "ground",
+      "count": 70000,
+      "sigma_world": 0.018
+    },
+    {
+      "name": "lower_body",
+      "count": 80000,
+      "sigma_world": 0.013
+    },
+    {
+      "name": "cabin",
+      "count": 50000,
+      "sigma_world": 0.012
+    },
+    {
+      "name": "windows",
+      "count": 35000,
+      "sigma_world": 0.011
+    },
+    {
+      "name": "wheel_FR",
+      "count": 19999,
+      "sigma_world": 0.01
+    },
+    {
+      "name": "wheel_FR_hubR",
+      "count": 4000,
+      "sigma_world": 0.008
+    },
+    {
+      "name": "wheel_FR_hubL",
+      "count": 4000,
+      "sigma_world": 0.008
+    },
+    {
+      "name": "wheel_FL",
+      "count": 19999,
+      "sigma_world": 0.01
+    },
+    {
+      "name": "wheel_FL_hubR",
+      "count": 4000,
+      "sigma_world": 0.008
+    },
+    {
+      "name": "wheel_FL_hubL",
+      "count": 4000,
+      "sigma_world": 0.008
+    },
+    {
+      "name": "wheel_BR",
+      "count": 19999,
+      "sigma_world": 0.01
+    },
+    {
+      "name": "wheel_BR_hubR",
+      "count": 4000,
+      "sigma_world": 0.008
+    },
+    {
+      "name": "wheel_BR_hubL",
+      "count": 4000,
+      "sigma_world": 0.008
+    },
+    {
+      "name": "wheel_BL",
+      "count": 19999,
+      "sigma_world": 0.01
+    },
+    {
+      "name": "wheel_BL_hubR",
+      "count": 4000,
+      "sigma_world": 0.008
+    },
+    {
+      "name": "wheel_BL_hubL",
+      "count": 4000,
+      "sigma_world": 0.008
+    },
+    {
+      "name": "headlight_R",
+      "count": 6000,
+      "sigma_world": 0.008
+    },
+    {
+      "name": "headlight_L",
+      "count": 6000,
+      "sigma_world": 0.008
+    }
+  ],
+  "files": {
+    "phox": "cgi_car_v1.3dphox",
+    "pbr_sidecar": "cgi_car_v1.pbr.npz"
+  }
+}

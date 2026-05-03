@@ -1,0 +1,35 @@
+{
+  "source": "F.26 procedural CGI studio scene",
+  "n_total": 480000,
+  "parts": [
+    {
+      "name": "ground",
+      "count": 180000,
+      "sigma_world": 0.02
+    },
+    {
+      "name": "chrome_sphere",
+      "count": 120000,
+      "sigma_world": 0.013
+    },
+    {
+      "name": "red_ball",
+      "count": 70000,
+      "sigma_world": 0.012
+    },
+    {
+      "name": "blue_cube",
+      "count": 80000,
+      "sigma_world": 0.013
+    },
+    {
+      "name": "brass_torus",
+      "count": 30000,
+      "sigma_world": 0.01
+    }
+  ],
+  "files": {
+    "phox": "cgi_studio_v1.3dphox",
+    "pbr_sidecar": "cgi_studio_v1.pbr.npz"
+  }
+}
