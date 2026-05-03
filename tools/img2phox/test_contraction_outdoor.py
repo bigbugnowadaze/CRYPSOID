@@ -191,16 +191,4 @@ def main():
     psnr_c = float(np.mean(psnrs_c))
     print(f'  contracted fit done in {time.perf_counter()-t1:.1f}s, PSNR = {psnr_c:.2f} dB')
 
-    delta = psnr_c - psnr_b
-    print()
-    print('=' * 70)
-    print(f'PSNR delta  contracted - bounded = {delta:+.2f} dB')
-    PASS = delta >= 3.0
-    print(f'GATE 2: {"PASS" if PASS else "FAIL"}  (criterion: delta >= +3.0 dB)')
-    print(f'  total {time.perf_counter()-t0:.1f}s')
-    print('=' * 70)
-    return 0 if PASS else 1
-
-
-if __name__ == '__main__':
-    raise SystemExit(main())
+    delta = psnr_c

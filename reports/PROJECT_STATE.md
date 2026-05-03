@@ -1921,3 +1921,107 @@ The four real options to push real-photo PSNR above 5 dB:
 | PatchMatchNet deep MVS | 3 weeks | no (medium) | yes |
 
 Long iterations are now the empirically-debunked option. The remaining real choices are #2-#5 of that table.
+
+---
+
+# Session F.23 → F.28 (2026-05-03)
+
+## TL;DR
+
+Five phases shipped, one with an honest negative result:
+
+| Phase | Outcome | Deliverable |
+|---|---|---|
+| F.23.1 | Spec | `docs/scene_contraction_spec.md` |
+| F.23.2 | Code shipped, Gate 1 PASS | `tools/img2phox/phoxel_contracted.py` |
+| F.23.3 | **Negative result** on Family (-6 dB) | `reports/F23_results.md` |
+| F.26 | CGI studio scene .3dphox | `tools/build_cgi_studio_phox.py`, `SHOWCASE_CGI_STUDIO.png` |
+| F.27 | CGI car + HDRI | `tools/build_cgi_car_phox.py`, `tools/render_cgi_car_hdri.py`, `SHOWCASE_CGI_3WAY.png` |
+| F.28 | Inverse-Lambert albedo recovery on the Audi | `tools/build_audi_relit.py`, `SHOWCASE_AUDI_RELIT_AB.png` |
+
+Master contact sheet for the whole session: `renders/crypsorender_v01/SHOWCASE_SESSION_F23_F28.png`.
+
+## What this session settled
+
+- **The "input data, not pipeline" thesis from `AUDI_HERO_attempt.md` has a complete proof.**
+  Three .3dphox sources (trained-3DGS scan, procedural studio, procedural car + HDRI)
+  through the same renderer give three distinct aesthetics. The pipeline is faithful;
+  the look is a property of the input.
+
+- **Outdoor scene contraction is harder than "just add contract()".**
+  The naive Mip-NeRF 360 port (Gate 1 PASS on a bounded scene) loses to the bounded
+  baseline by 6 dB on real Family. Diagnosed as compound issues: optimizer instability
+  (lr too high for shared-cell gradients), bg shell too thin, no separate bg model.
+  The full Mip-NeRF-360 recipe (lower lr + bg model + importance sampling + higher res)
+  is ~3-5 days of additional research-grade work. Parked.
+
+- **Inverse-Lambert albedo recovery is a one-day win on the scan-Audi.**
+  Fibonacci-search dominant L + LSQ ambient/diffuse fit, divide each splat's `sh_dc`
+  by its modeled illumination. Underside splats brighten ~17%, up-facing stay similar.
+  Drop-in replacement: `outputs/v40_audi_full_relit.3dphox` works in any existing
+  Audi render script.
+
+## Files added
+
+```
+docs/
+  scene_contraction_spec.md          F.23.1 spec
+reports/
+  AUDI_HERO_attempt.md               (from prior session)
+  F23_2_status.md                    F.23.2 phase status
+  F23_results.md                     F.23.3 honest negative result
+  F26_CGI_source_demo.md             F.26 CGI studio writeup
+  F27_cgi_car_hdri.md                F.27 CGI car + HDRI writeup
+  F28_inverse_rendering.md           F.28 albedo recovery writeup
+  PHOXEL_v13_colmap_152frame.md      (from prior session)
+tools/
+  build_audi_relit.py                F.28 inverse-Lambert builder
+  build_audi_relit_panel.py          F.28 A/B panel
+  build_cgi_3way_panel.py            F.27 3-panel
+  build_cgi_car_phox.py              F.27 CGI car SDF builder
+  build_cgi_studio_phox.py           F.26 CGI studio scene builder
+  build_cgi_vs_scan_panel.py         F.26 side-by-side panel
+  build_session_deliverable.py       F.29 master contact sheet
+  img2phox/phoxel_contracted.py      F.23.2 ContractedPhoxelGrid
+  img2phox/test_contraction_outdoor.py  F.23.2 Gate 2
+  img2phox/test_contraction_unit.py     F.23.2 Gate 1
+  render_audi_relit.py               F.28 relit Audi renderer
+  render_cgi_car_hdri.py             F.27 HDRI-env renderer
+  render_cgi_photoreal.py            F.26 photoreal renderer
+  run_family_contracted.py           F.23.3 Family contracted runner
+outputs/  (.3dphox files NOT committed — reproducible from build scripts)
+  cgi_studio_v1.3dphox               F.26 CGI studio  (18 MB)
+  cgi_car_v1.3dphox                  F.27 CGI car     (4 MB)
+  v40_audi_full_relit.3dphox         F.28 relit Audi  (52 MB)
+renders/crypsorender_v01/  (PNGs gitignored; rebuild from scripts)
+  SHOWCASE_CGI_STUDIO.png            F.26
+  SHOWCASE_CGI_CAR_HDRI.png          F.27
+  SHOWCASE_CGI_3WAY.png              F.27 main panel
+  SHOWCASE_AUDI_RELIT.png            F.28
+  SHOWCASE_AUDI_RELIT_AB.png         F.28 A/B panel
+  SHOWCASE_SESSION_F23_F28.png       F.29 master deliverable
+```
+
+## What's still open
+
+- **F.17** (incremental SfM past 20 dB) — pending, mostly superseded by F.21 COLMAP
+  but technically still on the board.
+- **F.23 full Mip-NeRF-360 recipe** — 3-5 days research-grade. Parked.
+- **CGI v3** — real Blender export → .3dphox round-trip. Would close the
+  "content pipeline" question (anyone with a Blender scene can drive the
+  CRYPSOID renderer). 1-2 days.
+- **F.28 v2** — per-material recovery (use `material_hint` chunk to apply
+  different inverse-rendering formulas to mirror/glass splats). 1 day.
+
+## Strategic position after this session
+
+The renderer + format are shipped. The image-in pipeline (img2phox) ships at
+~14.6 dB on the unbounded Family scene — that's a real ceiling without a
+non-trivial investment in the full Mip-NeRF-360 recipe. The CGI side is
+clean and demoable.
+
+Three honest fronts to invest in next:
+
+1. **Outdoor research** — F.23 Mip-NeRF-360 recipe, 3-5 days, high-value if it works.
+2. **Content pipeline** — Blender → .3dphox round-trip, 1-2 days, broadens who can use the renderer.
+3. **Compression / format** — push beyond v40 with deeper VQ, learnable codebooks, or sequence form for the .phoxseq spec.

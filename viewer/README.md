@@ -1,9 +1,10 @@
 # CRYPSOID `.3dphox` WebGL viewer
 
 Self-contained HTML viewer that loads `.3dphox` files in any modern browser
-and renders them with WebGL2. **Single-file, no build step, no server
-needed for local-file usage that uses the browser's File API; for
-fetch-loading you need a tiny static server.**
+and renders them with WebGL2. **True single-file: open `index.html` directly
+from your file system (double-click) — no server, no build step.** All
+decoder JS is inlined into the HTML so ES-module CORS restrictions on
+`file://` don't apply.
 
 This is the Tier 3 client-side end-user deliverable. The viewer's GPU code
 runs in the browser; the **CRYPSOID core codebase remains GPU-free** — this
@@ -111,4 +112,4 @@ There's no shared header file; the format itself is the contract.
 This viewer is a *demonstration that `.3dphox` is portable*, not a polished
 product. It runs fine on a 200k-splat subsample on a modest GPU. At full
 763k splats with no depth sort it'll have visible blending order artifacts
-on the halo splats — fixable in a v0.5 pass that adds a Web Worker sort.
+on the halo spl
