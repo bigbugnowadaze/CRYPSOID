@@ -1,0 +1,16 @@
+{
+  "scene": "dragon",
+  "scene_description": "PLY mesh (dragon_vrip.ply, 10000 pts after subsample)",
+  "blob_budget": 32,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.053127482533454895,
+    "phoxoid": 0.04807357117533684
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.1051286857738345,
+  "image_psnr_gauss_vs_phoxoid_db": 25.405193881176395,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": 64,
+  "killer_ratio_normalized": 2.0,
+  "fit_seconds": 0.13918810000177473,
+  "render_seconds": 0.02839039999525994
+}

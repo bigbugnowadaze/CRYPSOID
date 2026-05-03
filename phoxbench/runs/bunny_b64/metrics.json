@@ -1,0 +1,16 @@
+{
+  "scene": "bunny",
+  "scene_description": "PLY mesh (bun_zipper.ply, 10000 pts after subsample)",
+  "blob_budget": 64,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.022793259471654892,
+    "phoxoid": 0.020740576088428497
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.0989694487980795,
+  "image_psnr_gauss_vs_phoxoid_db": 25.81490322884552,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": 128,
+  "killer_ratio_normalized": 2.0,
+  "fit_seconds": 0.09958550000010291,
+  "render_seconds": 0.024401800001214724
+}

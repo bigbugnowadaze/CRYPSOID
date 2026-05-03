@@ -59,21 +59,25 @@ first-class format.
 | Render mode dropdown | `Full color` (DC + SH) / `DC only` / `Tier overlay` / `Lit` (v32a Lambert, needs v31 normals) / `Lit + dim floaters` (v32a + v33 material_hint) / `Material overlay` (v33 hint colors) |
 | Splat scale slider | uniform multiplier on splat sigma |
 | Splat alpha cap slider | uniform multiplier on opacity |
+| **Phoxoidal density slider** | 0.0 = pure Gaussian; 1.0 = full phoxoidal cubic-cusp density. Watch sharp creases tighten as you push it up. |
+| **Load .phoxseq button** | Loads a sibling v34 timeline file. Reveals a frame slider + Play/Reset controls. Try with `outputs/v34_audi_halo_bloom.phoxseq` over the v40 Audi base. |
 
 ## What's not implemented (yet)
 
-- **Phoxoidal density evaluation in the fragment shader.** The viewer
-  currently uses standard Gaussian density `exp(-2|p|²)`. To exercise the
-  faithful 5-coef phoxoidal path here would need the closest-point Newton
-  solver in GLSL — doable as v0.5 work.
-- **CPU depth-sort for proper "over" compositing.** The blending mode used
-  is `(ONE_MINUS_DST_ALPHA, ONE)` — order-independent additive accumulation.
-  This is correct for the visualization use case (you can see the model)
-  but not perfectly correct for transparent splat compositing. A
-  `sort_worker.js` is provided in this folder (~50 lines, counting-radix on
-  16-bit quantized depth keys) but is **not yet wired into `index.html`**.
-  Wiring it requires adding an instance-index buffer and switching to
-  indexed instancing in the draw call. v0.5 work.
+- ~~**Phoxoidal density evaluation in the fragment shader.**~~ **DONE (2026-05-02).**
+  Fragment shader now evaluates `exp(-2 · (r² + 0.55·uPhoxStrength·cubic_term))`
+  where `cubic_term = |x·y²| + |y·x²|` mirrors the Pearcey germ's cubic ω
+  coefficient. `uPhoxStrength` is exposed as a slider — 0.0 matches every other
+  splat viewer; 1.0 is full phoxoidal cubic-cusp falloff. The faithful 5-coef
+  closest-point Newton path remains v0.5 work, but the cubic-cusp approximation
+  here is what most users will actually see the difference on.
+- ~~**CPU depth-sort for proper "over" compositing.**~~ **DONE (2026-05-02).**
+  `sort_worker.js` is now wired into `index.html`. The viewer spawns a
+  worker on scene load, sends per-frame view matrices, gets back back-to-
+  front splat indices, reorders the per-instance buffers, and uses standard
+  `(SRC_ALPHA, ONE_MINUS_SRC_ALPHA)` "over" compositing. Sort cadence is
+  throttled by hashing the view-matrix Z-row so we only re-sort when the
+  camera actually moves enough to matter.
 - **Camera animation / turntable export.**
 - **Loading from URL** (only File API drag-and-drop currently).
 

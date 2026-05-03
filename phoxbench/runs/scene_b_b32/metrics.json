@@ -1,0 +1,16 @@
+{
+  "scene": "scene_b",
+  "scene_description": "PLY mesh (scene_b.ply, 10000 pts after subsample)",
+  "blob_budget": 32,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.031015735119581223,
+    "phoxoid": 0.029895372688770294
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.0374761151993188,
+  "image_psnr_gauss_vs_phoxoid_db": 23.258078436737218,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": 64,
+  "killer_ratio_normalized": 2.0,
+  "fit_seconds": 0.11059270000259858,
+  "render_seconds": 0.021919800001342082
+}

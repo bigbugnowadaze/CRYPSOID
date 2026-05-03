@@ -1,0 +1,16 @@
+{
+  "scene": "armadillo_face45",
+  "scene_description": "PLY mesh (ArmadilloOnFace2_45.ply, 10000 pts after subsample)",
+  "blob_budget": 64,
+  "n_pts": 10000,
+  "fit_rmse": {
+    "gaussian": 0.010307424701750278,
+    "phoxoid": 0.00886138342320919
+  },
+  "fit_advantage_phoxoid_over_gaussian": 1.1631845965217695,
+  "image_psnr_gauss_vs_phoxoid_db": 27.727253786001906,
+  "killer_ratio_gaussian_blobs_to_match_phoxoid": 128,
+  "killer_ratio_normalized": 2.0,
+  "fit_seconds": 0.08136109999759356,
+  "render_seconds": 0.02082920000248123
+}

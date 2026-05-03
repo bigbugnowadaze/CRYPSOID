@@ -17,3 +17,32 @@ build/
 *.jpeg
 *.mp4
 .DS_Store
+
+# img2phox session intermediate caches
+outputs/_*
+outputs/_lego*
+outputs/_family*
+outputs/_phoxel*
+outputs/_sfm*
+outputs/_colmap*
+
+# Big input datasets (NOT including small samples)
+inputs/Family/
+inputs/SUSHI/
+inputs/bunny/
+inputs/bunny.tar.gz
+inputs/Armadillo_scans*
+inputs/dragon_recon*
+inputs/happy_stand*
+inputs/audi/
+inputs/Doom*
+inputs/mipnerf/
+inputs/stanford/
+
+# Keep small samples committed
+!inputs/lego_excavator/
+!inputs/lego_excavator_unique/
+!inputs/family_small/
+!inputs/family_consecutive/
+!inputs/family_30c/
+!inputs/family_every5/

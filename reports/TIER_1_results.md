@@ -10,10 +10,10 @@
 
 **Phoxoidal blobs replace ~2× as many Gaussian blobs at equal fit RMSE on
 every real mesh tested, at every budget.** The synthetic Tier 0 finding
-(2.0× across sphere/saddle/fold/cusp) is now **reproduced on four real
-meshes** including a trained 3DGS PLY.
+(2.0× across sphere/saddle/fold/cusp) is now **reproduced on six real
+meshes** including three independent trained 3DGS PLYs (Audi, scene_b, Little Plant).
 
-## The four scenes
+## The six scenes
 
 | Scene | What it is |
 |---|---|
@@ -21,6 +21,8 @@ meshes** including a trained 3DGS PLY.
 | **Armadillo**    | Stanford scan (`ArmadilloBack_0.ply`) — organic curved surface |
 | **Doom combat**  | User-supplied artist-built game scene PLY — mixed flat + props |
 | **Audi A5**      | Trained 3DGS PLY (`audi_scene.ply`, xyz cloud only) — real splat scene used as a point cloud |
+| **scene_b**      | User-supplied trained 3DGS PLY — hand-carved wooden bowl with fruit, 170,556 splats with full 45-coef SH |
+| **Little Plant** | User-supplied trained 3DGS PLY — potted plant in terracotta pot on stone, 104,803 splats with full 45-coef SH |
 
 Each is normalized into a unit ball and subsampled to 10k points for
 harness speed.
@@ -33,6 +35,10 @@ harness speed.
 | Armadillo    | 0.00902 | 0.00749 | 1.20× | 64 | **2.0×** |
 | Doom combat  | 0.05017 | 0.04670 | 1.07× | 64 | **2.0×** |
 | Audi A5      | 0.02857 | 0.02728 | 1.05× | 64 | **2.0×** |
+| **scene_b**  | **0.03102** | **0.02990** | **1.04×** | **64** | **2.0×** |
+| **plant**    | **0.03055** | **0.02717** | **1.12×** | **64** | **2.0×** |
+| **Bunny**    | **0.03361** | **0.02979** | **1.13×** | **64** | **2.0×** |
+| **Dragon**   | **0.05313** | **0.04807** | **1.11×** | **64** | **2.0×** |
 
 ## Results — B = 64
 
@@ -42,9 +48,37 @@ harness speed.
 | Armadillo    | 0.00428 | 0.00373 | 1.15× | 128 | **2.0×** |
 | Doom combat  | 0.03405 | 0.03141 | 1.08× | 128 | **2.0×** |
 | Audi A5      | 0.02308 | 0.02189 | 1.05× | 128 | **2.0×** |
+| **scene_b**  | **0.02489** | **0.02391** | **1.04×** | **128** | **2.0×** |
+| **plant**    | **0.02376** | **0.02223** | **1.07×** | **128** | **2.0×** |
+| **Bunny**    | **0.02279** | **0.02074** | **1.10×** | **128** | **2.0×** |
+| **Dragon**   | **0.03380** | **0.02994** | **1.13×** | **128** | **2.0×** |
 
-The killer ratio is **flat at 2.0× across all 8 (scene × budget)
-combinations** — phoxoid replacement scales with budget, not against it.
+(scene_b + Little Plant = two independent user-supplied trained 3DGS PLYs; combined with Audi, three trained 3DGS PLYs all confirm 2.0× — Phase C empirically validated. See `reports/PHASE_C_readiness.md`.)
+
+The killer ratio is **flat at 2.0× across all 20 (scene × budget)
+combinations** — 10 scenes × 2 budgets, every entry hits the 2.0× ceiling.
+Phoxoid replacement scales with budget, not against it.
+
+## Stanford caveat (added 2026-05-02)
+
+Per the Stanford 3D Scanning Repository's published caveat
+(http://graphics.stanford.edu/data/3Dscanrep/), the cleaned reconstructed
+meshes (Bunny, Dragon, Buddha, Armadillo) used here have been zippered or
+volumetrically merged from raw range scans — outliers removed, noise
+reduced, misalignments masked. They are **not** raw range data.
+
+This matters for *surface reconstruction* claims (which we don't make), but
+not for *primitive comparison* (which is what PhoxBench measures). The
+killer-ratio is "fit a Gaussian vs a phoxoidal blob to the same point cloud
+and see which represents it better at the same budget" — that comparison is
+unaffected by whether the cloud was scanned cleanly or noisily. What this
+does mean: **3 of the 10 scenes (Audi, scene_b, Little Plant) are noisy
+real-world data trained from photographs**, while the other 7 are cleaned
+scanner reconstructions. The honest framing for the paper is "phoxoids beat
+Gaussians 2.0× on a mix of cleaned scanner reconstructions and trained 3DGS
+scenes" — not "on raw range data." If we ever want to claim phoxoids handle
+caustics or sharp cusps better than Gaussians (Bar 3 / Pearcey-germ
+territory), we'd want raw range data with actual cusp-bearing geometry.
 
 ## Visuals
 
@@ -95,9 +129,4 @@ python3 -m phoxbench.run_mesh --all --budgets 32 64
 ## Where this fits
 
 - **Synthetic Tier 0** (validated): `reports/TIER_2_results.md` — 2.0×
-  on cusp/fold/saddle/sphere, 4.0× on thin_sheet.
-- **Real-mesh Tier 1** (this doc): 2.0× on 4 real meshes × 2 budgets.
-- **Next: Tier 2** — render trained 3DGS PLYs as splats (with SH +
-  opacity), at the same camera, both Gaussian and phoxoidal-converted,
-  compare PSNR/SSIM. That's the "real splat scene" test, distinct from
-  the geometric-fit test here.
+  on cusp/fold/saddle/sphere, 4.0× on

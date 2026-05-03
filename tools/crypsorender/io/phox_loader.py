@@ -262,3 +262,96 @@ def load_3dphox(path: Path) -> SplatBuffer:
             return load_3dphox_v28_archive(path)
         return load_3dphox_v28_render(path)
     raise ValueError(f"Unknown .3dphox magic: {magic!r}")
+
+
+# ---------- v31 + v40 trailer parsing (Python equivalent of JS parseV31Trailer) ----------
+# A v31-versioned .3dphox is the v28 archive bytes followed by a CRYPSOID31\0 trailer.
+# A v40-versioned .3dphox extends that with a CRYPSOID40\0 trailer.
+# Both are backward-compatible: v28 readers ignore everything after their region.
+
+V31_MAGIC = b'CRYPSOID31\x00'
+V40_MAGIC = b'CRYPSOID40\x00'
+
+
+def parse_v31_trailer(file_bytes: bytes):
+    """Find and parse the v31 trailer in a .3dphox file. Returns dict or None.
+
+    Returns: {'manifest': dict, 'chunks': {name: bytes}} or None if no trailer.
+    """
+    pos = file_bytes.rfind(V31_MAGIC)
+    if pos < 0:
+        return None
+    # If a v40 trailer exists later in the file, the v31 trailer ends before it.
+    v40_pos = file_bytes.find(V40_MAGIC, pos + len(V31_MAGIC))
+    p = pos + len(V31_MAGIC)
+    mlen = struct.unpack('<Q', file_bytes[p:p+8])[0]; p += 8
+    manifest = json.loads(file_bytes[p:p+mlen].decode('utf-8')); p += mlen
+    chunks_region = file_bytes[p:v40_pos] if v40_pos > 0 else file_bytes[p:]
+    chunks = {}
+    for c in manifest['chunks']:
+        start = c['offset_in_trailer']
+        end = start + c['size_bytes']
+        chunks[c['name']] = chunks_region[start:end]
+    return {'manifest': manifest, 'chunks': chunks}
+
+
+def parse_v40_trailer(file_bytes: bytes):
+    """Find and parse the v40 trailer (κ + cusp + optional 5-coef Pearcey). Returns dict or None."""
+    pos = file_bytes.rfind(V40_MAGIC)
+    if pos < 0:
+        return None
+    p = pos + len(V40_MAGIC)
+    mlen = struct.unpack('<Q', file_bytes[p:p+8])[0]; p += 8
+    manifest = json.loads(file_bytes[p:p+mlen].decode('utf-8')); p += mlen
+    chunks_region = file_bytes[p:]
+    chunks = {}
+    for c in manifest['chunks']:
+        start = c['offset_in_trailer']
+        end = start + c['size_bytes']
+        chunks[c['name']] = chunks_region[start:end]
+    return {'manifest': manifest, 'chunks': chunks}
+
+
+def load_aux_from_3dphox(path):
+    """High-level helper: load a .3dphox and return any v31/v40 aux data.
+
+    Returns dict with optional keys: 'normals', 'tangent_angles', 'edges', 'k',
+    'material_hint', 'material_confidence', 'material_view_dep', 'material_mip',
+    'kappa', 'cusp_norm', 'pearcey_germ' (each (kappa1, kappa2, chi, omega, zeta)).
+    Anything not present in the file is omitted from the result.
+    """
+    from .normals_codec import read_normals_chunk, NORMALS_CHUNK_ID
+    from .edges_codec   import read_edges_chunk,   EDGES_CHUNK_ID
+    from .material_codec import read_material_chunk, MATERIAL_CHUNK_ID
+    from .germ_codec    import (read_kappa_chunk, read_cusp_chunk, read_pearcey_chunk,
+                                  KAPPA_CHUNK_ID, CUSP_CHUNK_ID, PEARCEY_CHUNK_ID)
+    file_bytes = Path(path).read_bytes()
+    out = {}
+    v31 = parse_v31_trailer(file_bytes)
+    if v31:
+        for c in v31['manifest']['chunks']:
+            cb = v31['chunks'][c['name']]
+            cid = c['chunk_id']
+            if cid == NORMALS_CHUNK_ID:
+                n, t = read_normals_chunk(cb)
+                out['normals'] = n; out['tangent_angles'] = t
+            elif cid == EDGES_CHUNK_ID:
+                out['edges'] = read_edges_chunk(cb); out['k'] = c.get('k', 4)
+            elif cid == MATERIAL_CHUNK_ID:
+                h, conf, vd, mp = read_material_chunk(cb)
+                out['material_hint'] = h
+                out['material_confidence'] = conf
+                out['material_view_dep'] = vd
+                out['material_mip'] = mp
+    v40 = parse_v40_trailer(file_bytes)
+    if v40:
+        for c in v40['manifest']['chunks']:
+            cb = v40['chunks'][c['name']]
+            cid = c['chunk_id']
+            if cid == KAPPA_CHUNK_ID:
+                out['kappa'] = read_kappa_chunk(cb)
+            elif cid == CUSP_CHUNK_ID:
+                out['cusp_norm'] = read_cusp_chunk(cb)
+            elif cid == PEARCEY_CHUNK_ID:
+                out['pearcey_germ'] = read_pearcey_chunk(cb)
+    return out
